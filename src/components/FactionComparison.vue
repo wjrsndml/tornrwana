@@ -2,52 +2,52 @@
   <el-card class="faction-comparison-card">
     <template #header>
       <div class="card-header">
-        <h2>帮派实力对比分析器</h2>
+        <h2>Faction Strength Comparison Analyzer</h2>
       </div>
     </template>
-    <p>输入两个帮派ID进行实力对比分析，包括最近四个月的RW数据、Chain数据和成员个人数据。</p>
+    <p>Enter two faction IDs to analyze and compare their strengths, including RW data, Chain data, and member personal data from the past four months.</p>
     
-    <!-- API Key 配置 -->
+    <!-- API Key Configuration -->
     <el-card class="api-config-card" style="margin-bottom: 20px;">
       <template #header>
-        <h4>API 密钥配置</h4>
+        <h4>API Key Configuration</h4>
       </template>
       <el-form :model="apiForm" label-width="100px">
-        <el-form-item label="API 密钥">
+        <el-form-item label="API Keys">
           <el-input
             v-model="apiForm.apiKeys"
             type="textarea"
             :rows="3"
-            placeholder="请输入API密钥，多个密钥用换行分隔。支持多密钥并行加速获取数据。"
+            placeholder="Please enter API keys, one per line. Multiple keys support parallel data fetching acceleration."
           />
           <div class="api-help-text">
             <el-text size="small" type="info">
-              • 每行一个API密钥<br>
-              • 同一个人的API密钥只能使用一个<br>
-              • 支持多密钥并行请求加速<br>
-              • 单个密钥限制50次/分钟
+              • One API key per line<br>
+              • Only one API key per person can be used<br>
+              • Multiple keys support parallel request acceleration<br>
+              • Single key limit: 50 requests/minute
             </el-text>
           </div>
         </el-form-item>
       </el-form>
     </el-card>
 
-    <!-- 帮派输入 -->
+    <!-- Faction Input -->
     <el-form :model="form" label-width="120px">
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="帮派1 ID">
+          <el-form-item label="Faction 1 ID">
             <el-input 
               v-model="form.faction1Id" 
-              placeholder="请输入帮派1的ID" 
+              placeholder="Enter Faction 1 ID" 
             />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="帮派2 ID">
+          <el-form-item label="Faction 2 ID">
             <el-input 
               v-model="form.faction2Id" 
-              placeholder="请输入帮派2的ID" 
+              placeholder="Enter Faction 2 ID" 
             />
           </el-form-item>
         </el-col>
@@ -59,27 +59,27 @@
           :loading="loading"
           :disabled="!canStartComparison"
         >
-          开始分析
+          Start Analysis
         </el-button>
         <el-button 
           v-if="loading"
           @click="stopComparison"
         >
-          停止分析
+          Stop Analysis
         </el-button>
       </el-form-item>
     </el-form>
 
-    <!-- 进度显示 -->
+    <!-- Progress Display -->
     <div v-if="loading || statusMessage" class="progress-section">
       <el-card class="progress-card">
         <template #header>
-          <h4>数据获取进度</h4>
+          <h4>Data Fetching Progress</h4>
         </template>
         
-        <!-- 总体进度 -->
+        <!-- Overall Progress -->
         <div class="progress-item">
-          <div class="progress-label">总体进度</div>
+          <div class="progress-label">Overall Progress</div>
           <el-progress 
             :percentage="overallProgress" 
             :status="loading ? '' : 'success'"
@@ -88,10 +88,10 @@
           <div class="progress-text">{{ progressText }}</div>
         </div>
 
-        <!-- 详细进度 -->
+        <!-- Detailed Progress -->
         <div v-if="detailedProgress.length > 0" class="detailed-progress">
           <el-collapse>
-            <el-collapse-item title="详细进度" name="details">
+            <el-collapse-item title="Detailed Progress" name="details">
               <div v-for="item in detailedProgress" :key="item.key" class="progress-detail-item">
                 <div class="progress-detail-label">{{ item.label }}</div>
                 <el-progress 
@@ -105,7 +105,7 @@
           </el-collapse>
         </div>
 
-        <!-- 状态消息 -->
+        <!-- Status Message -->
         <el-alert 
           v-if="statusMessage"
           :title="statusMessage"
@@ -117,28 +117,28 @@
       </el-card>
     </div>
 
-    <!-- 缓存信息 -->
+    <!-- Cache Information -->
     <el-card v-if="cacheInfo.length > 0" class="cache-info-card" style="margin-top: 20px;">
       <template #header>
         <div class="cache-header">
-          <h4>缓存数据信息 ({{ cacheInfo.length }} 项)</h4>
+          <h4>Cache Data Information ({{ cacheInfo.length }} items)</h4>
           <div>
-            <el-button size="small" @click="clearCache">清空缓存</el-button>
+            <el-button size="small" @click="clearCache">Clear Cache</el-button>
           </div>
         </div>
       </template>
       <el-collapse>
-        <el-collapse-item title="查看缓存详情" name="cache">
+        <el-collapse-item title="View Cache Details" name="cache">
           <el-table :data="cacheInfo" size="small">
-            <el-table-column prop="type" label="数据类型" width="150" />
+            <el-table-column prop="type" label="Data Type" width="150" />
             <el-table-column prop="id" label="ID" width="100" />
-            <el-table-column prop="name" label="名称" />
-            <el-table-column prop="lastUpdated" label="最后更新时间" width="180" />
-            <el-table-column prop="dataSize" label="数据大小" width="120" />
-            <el-table-column label="操作" width="150">
+            <el-table-column prop="name" label="Name" />
+            <el-table-column prop="lastUpdated" label="Last Updated" width="180" />
+            <el-table-column prop="dataSize" label="Data Size" width="120" />
+            <el-table-column label="Actions" width="150">
               <template #default="{ row }">
-                <el-button size="small" @click="viewCacheData(row.key)">查看</el-button>
-                <el-button size="small" type="danger" @click="removeCacheItem(row.key)">删除</el-button>
+                <el-button size="small" @click="viewCacheData(row.key)">View</el-button>
+                <el-button size="small" type="danger" @click="removeCacheItem(row.key)">Delete</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -146,39 +146,39 @@
       </el-collapse>
     </el-card>
 
-    <!-- 结果显示区域 -->
+    <!-- Results Display Area -->
     <div v-if="comparisonResult" class="comparison-result">
       <el-card class="result-card" style="margin-top: 20px;">
         <template #header>
-          <h3>对比分析结果</h3>
+          <h3>Comparison Analysis Results</h3>
         </template>
         <div class="result-summary">
-          <p>数据获取完成！共获取到：</p>
+          <p>Data retrieval completed! Retrieved:</p>
           <ul>
-            <li>帮派1 ({{ comparisonResult.faction1.name }}): {{ getMemberCount(comparisonResult.faction1.members) }} 名成员</li>
-            <li>帮派2 ({{ comparisonResult.faction2.name }}): {{ getMemberCount(comparisonResult.faction2.members) }} 名成员</li>
-            <li>RW 数据: {{ comparisonResult.rwDataCount }} 条记录 ({{ comparisonResult.detailedRwCount }} 条详细报告)</li>
-            <li>Chain 数据: {{ comparisonResult.chainDataCount }} 条记录 ({{ comparisonResult.detailedChainCount }} 条详细报告)</li>
-            <li>个人统计数据: {{ comparisonResult.personalStatsCount }} 条记录</li>
+            <li>Faction 1 ({{ comparisonResult.faction1.name }}): {{ getMemberCount(comparisonResult.faction1.members) }} members</li>
+            <li>Faction 2 ({{ comparisonResult.faction2.name }}): {{ getMemberCount(comparisonResult.faction2.members) }} members</li>
+            <li>RW Data: {{ comparisonResult.rwDataCount }} records ({{ comparisonResult.detailedRwCount }} detailed reports)</li>
+            <li>Chain Data: {{ comparisonResult.chainDataCount }} records ({{ comparisonResult.detailedChainCount }} detailed reports)</li>
+            <li>Personal Stats Data: {{ comparisonResult.personalStatsCount }} records</li>
           </ul>
           
           <div style="margin-top: 15px;">
-            <h4>数据详情</h4>
+            <h4>Data Details</h4>
             <el-row :gutter="20">
               <el-col :span="12">
                 <h5>{{ comparisonResult.faction1.name }}</h5>
                 <ul>
-                  <li>RW: {{ comparisonResult.faction1.rankedWars.length }} 条</li>
-                  <li>Chain: {{ comparisonResult.faction1.chains.length }} 条</li>
-                  <li>成员个人数据: {{ Object.keys(comparisonResult.faction1.personalStats).filter(id => comparisonResult.faction1.personalStats[id]).length }} 条</li>
+                  <li>RW: {{ comparisonResult.faction1.rankedWars.length }} records</li>
+                  <li>Chain: {{ comparisonResult.faction1.chains.length }} records</li>
+                  <li>Member Personal Data: {{ Object.keys(comparisonResult.faction1.personalStats).filter(id => comparisonResult.faction1.personalStats[id]).length }} records</li>
                 </ul>
               </el-col>
               <el-col :span="12">
                 <h5>{{ comparisonResult.faction2.name }}</h5>
                 <ul>
-                  <li>RW: {{ comparisonResult.faction2.rankedWars.length }} 条</li>
-                  <li>Chain: {{ comparisonResult.faction2.chains.length }} 条</li>
-                  <li>成员个人数据: {{ Object.keys(comparisonResult.faction2.personalStats).filter(id => comparisonResult.faction2.personalStats[id]).length }} 条</li>
+                  <li>RW: {{ comparisonResult.faction2.rankedWars.length }} records</li>
+                  <li>Chain: {{ comparisonResult.faction2.chains.length }} records</li>
+                  <li>Member Personal Data: {{ Object.keys(comparisonResult.faction2.personalStats).filter(id => comparisonResult.faction2.personalStats[id]).length }} records</li>
                 </ul>
               </el-col>
             </el-row>
@@ -186,10 +186,11 @@
         </div>
       </el-card>
 
-      <!-- PVP胜率预测 -->
+
+      <!-- PVP Win Rate Prediction -->
       <el-card v-if="comparisonResult.winRatePrediction" class="win-rate-card" style="margin-top: 20px;">
         <template #header>
-          <h3>🏆 PVP胜率预测</h3>
+          <h3>🏆 PVP Win Rate Prediction</h3>
         </template>
         <div class="win-rate-display">
           <el-row :gutter="20">
@@ -221,26 +222,26 @@
             </el-col>
           </el-row>
           
-          <!-- 24小时开战胜率表 -->
+          <!-- 24-Hour Battle Win Rate Table -->
           <div v-if="comparisonResult.winRatePrediction.hourlyWinRates" class="hourly-win-rates" style="margin-top: 30px;">
             <el-collapse>
               <el-collapse-item name="hourly-rates">
                 <template #title>
-                  <h4>⏰ 24小时开战胜率详表 (平均胜率: {{ comparisonResult.winRatePrediction.faction1WinRate }}% : {{ comparisonResult.winRatePrediction.faction2WinRate }}%)</h4>
+                  <h4>⏰ 24-Hour Battle Win Rate Details (Average Win Rate: {{ comparisonResult.winRatePrediction.faction1WinRate }}% : {{ comparisonResult.winRatePrediction.faction2WinRate }}%)</h4>
                 </template>
                 
                 <div class="hourly-explanation" style="margin-bottom: 15px;">
                   <el-alert 
-                    title="说明" 
+                    title="Explanation" 
                     type="info" 
                     :closable="false"
-                    description="根据成员睡觉时间段计算不同开战时间的胜率。活跃时间100%战力，睡觉时间30%战力。无数据成员按帮派平均睡觉时间估计。"
+                    description="Win rates calculated based on member sleep schedules for different battle start times. 100% combat power during active hours, 30% during sleep hours. Members without data estimated using faction average sleep times."
                   />
                 </div>
                 
-                <!-- 胜率趋势图表区域 -->
+                <!-- Win Rate Trend Chart Area -->
                 <div class="hourly-chart" style="margin-bottom: 20px;">
-                  <h5>胜率趋势图</h5>
+                  <h5>Win Rate Trend Chart</h5>
                   <div class="chart-container" style="height: 200px; position: relative; border: 1px solid #e4e7ed; border-radius: 4px; padding: 10px;">
                     <div class="chart-axis" style="position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: #ddd;"></div>
                     <div class="chart-bars" style="height: 180px; display: flex; align-items: end; justify-content: space-between;">
@@ -266,15 +267,15 @@
                   </div>
                 </div>
                 
-                <!-- 详细数据表格 -->
+                <!-- Detailed Data Table -->
                 <el-table 
                   :data="comparisonResult.winRatePrediction.hourlyWinRates" 
                   size="small" 
                   max-height="400"
                   stripe
                 >
-                  <el-table-column prop="timeDisplay" label="开战时间" width="100" align="center" />
-                  <el-table-column :label="`${comparisonResult.faction1.name} 胜率`" width="120" align="center">
+                  <el-table-column prop="timeDisplay" label="Battle Time" width="100" align="center" />
+                  <el-table-column :label="`${comparisonResult.faction1.name} Win Rate`" width="120" align="center">
                     <template #default="{ row }">
                       <el-tag 
                         :type="row.faction1WinRate > 70 ? 'success' : row.faction1WinRate > 40 ? 'warning' : 'danger'" 
@@ -284,7 +285,7 @@
                       </el-tag>
                     </template>
                   </el-table-column>
-                  <el-table-column :label="`${comparisonResult.faction2.name} 胜率`" width="120" align="center">
+                  <el-table-column :label="`${comparisonResult.faction2.name} Win Rate`" width="120" align="center">
                     <template #default="{ row }">
                       <el-tag 
                         :type="row.faction2WinRate > 70 ? 'success' : row.faction2WinRate > 40 ? 'warning' : 'danger'" 
@@ -294,27 +295,27 @@
                       </el-tag>
                     </template>
                   </el-table-column>
-                  <el-table-column :label="`${comparisonResult.faction1.name} 有效人数`" width="120" align="center">
+                  <el-table-column :label="`${comparisonResult.faction1.name} Active Members`" width="120" align="center">
                     <template #default="{ row }">
                       {{ row.faction1Strength.activeMemberCount }} / {{ row.faction1Strength.memberCount }}
                     </template>
                   </el-table-column>
-                  <el-table-column :label="`${comparisonResult.faction2.name} 有效人数`" width="120" align="center">
+                  <el-table-column :label="`${comparisonResult.faction2.name} Active Members`" width="120" align="center">
                     <template #default="{ row }">
                       {{ row.faction2Strength.activeMemberCount }} / {{ row.faction2Strength.memberCount }}
                     </template>
                   </el-table-column>
-                  <el-table-column :label="`${comparisonResult.faction1.name} 实力`" width="120" align="center">
+                  <el-table-column :label="`${comparisonResult.faction1.name} Strength`" width="120" align="center">
                     <template #default="{ row }">
                       {{ Math.round(row.faction1Strength.effectiveCombatPower) }}
                     </template>
                   </el-table-column>
-                  <el-table-column :label="`${comparisonResult.faction2.name} 实力`" width="120" align="center">
+                  <el-table-column :label="`${comparisonResult.faction2.name} Strength`" width="120" align="center">
                     <template #default="{ row }">
                       {{ Math.round(row.faction2Strength.effectiveCombatPower) }}
                     </template>
                   </el-table-column>
-                  <el-table-column label="实力比" width="100" align="center">
+                  <el-table-column label="Strength Ratio" width="100" align="center">
                     <template #default="{ row }">
                       <span :style="{ color: row.faction1Score > row.faction2Score ? '#67c23a' : '#f56c6c' }">
                         {{ row.faction2Score > 0 ? (row.faction1Score / row.faction2Score).toFixed(2) : '∞' }}:1
@@ -323,16 +324,16 @@
                   </el-table-column>
                 </el-table>
                 
-                <!-- 最优开战时间建议 -->
+                <!-- Optimal Battle Time Recommendations -->
                 <div class="best-time-suggestion" style="margin-top: 20px;">
                   <el-card>
                     <template #header>
-                      <h5>🎯 最优开战时间建议</h5>
+                      <h5>🎯 Optimal Battle Time Recommendations</h5>
                     </template>
                     <el-row :gutter="20">
                       <el-col :span="12">
                         <div class="faction-best-times">
-                          <h6>{{ comparisonResult.faction1.name }} 最优时间段:</h6>
+                          <h6>{{ comparisonResult.faction1.name }} Optimal Time Slots:</h6>
                           <div class="best-times">
                             <el-tag 
                               v-for="hour in getBestTimesForFaction(comparisonResult.winRatePrediction.hourlyWinRates, 1)" 
@@ -348,7 +349,7 @@
                       </el-col>
                       <el-col :span="12">
                         <div class="faction-best-times">
-                          <h6>{{ comparisonResult.faction2.name }} 最优时间段:</h6>
+                          <h6>{{ comparisonResult.faction2.name }} Optimal Time Slots:</h6>
                           <div class="best-times">
                             <el-tag 
                               v-for="hour in getBestTimesForFaction(comparisonResult.winRatePrediction.hourlyWinRates, 2)" 
@@ -372,7 +373,7 @@
           <div class="analysis-text">
             <el-card>
               <template #header>
-                <h4>详细分析</h4>
+                <h4>Detailed Analysis</h4>
               </template>
               <div class="analysis-details">
                 <el-row :gutter="20">
@@ -380,11 +381,11 @@
                     <div class="faction-analysis">
                       <h5>{{ comparisonResult.winRatePrediction.analysisData.faction1.name }}</h5>
                       <ul>
-                        <li>综合实力分: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction1.combatPowerScore }}</strong></li>
-                        <li>平均BS: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction1.averageBS }}</strong></li>
-                        <li>活跃度分数: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction1.activityScore }}</strong></li>
-                        <li>成员数量: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction1.memberCount }}</strong> 人</li>
-                        <li>综合评分: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction1.score }}</strong></li>
+                        <li>Overall Strength Score: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction1.combatPowerScore }}</strong></li>
+                        <li>Average BS: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction1.averageBS }}</strong></li>
+                        <li>Activity Score: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction1.activityScore }}</strong></li>
+                        <li>Member Count: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction1.memberCount }}</strong> members</li>
+                        <li>Overall Rating: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction1.score }}</strong></li>
                       </ul>
                     </div>
                   </el-col>
@@ -392,11 +393,11 @@
                     <div class="faction-analysis">
                       <h5>{{ comparisonResult.winRatePrediction.analysisData.faction2.name }}</h5>
                       <ul>
-                        <li>综合实力分: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction2.combatPowerScore }}</strong></li>
-                        <li>平均BS: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction2.averageBS }}</strong></li>
-                        <li>活跃度分数: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction2.activityScore }}</strong></li>
-                        <li>成员数量: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction2.memberCount }}</strong> 人</li>
-                        <li>综合评分: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction2.score }}</strong></li>
+                        <li>Overall Strength Score: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction2.combatPowerScore }}</strong></li>
+                        <li>Average BS: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction2.averageBS }}</strong></li>
+                        <li>Activity Score: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction2.activityScore }}</strong></li>
+                        <li>Member Count: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction2.memberCount }}</strong> members</li>
+                        <li>Overall Rating: <strong>{{ comparisonResult.winRatePrediction.analysisData.faction2.score }}</strong></li>
                       </ul>
                     </div>
                   </el-col>
@@ -407,50 +408,50 @@
         </div>
       </el-card>
 
-      <!-- 帮派实力详细分析 -->
+      <!-- Faction Strength Detailed Analysis -->
       <el-card v-if="comparisonResult.faction1Analysis && comparisonResult.faction2Analysis" class="strength-analysis-card" style="margin-top: 20px;">
         <template #header>
-          <h3>📊 帮派实力详细分析</h3>
+          <h3>📊 Faction Strength Detailed Analysis</h3>
         </template>
         
-        <!-- 整体对比 -->
+        <!-- Overall Comparison -->
         <div class="overall-comparison">
-          <h4>整体实力对比</h4>
+          <h4>Overall Strength Comparison</h4>
           <el-table :data="[
             {
-              metric: '平均BS',
+              metric: 'Average BS',
               faction1: formatBSValue(Math.round(comparisonResult.faction1Analysis.averageBS)),
               faction2: formatBSValue(Math.round(comparisonResult.faction2Analysis.averageBS)),
               faction1Raw: Math.round(comparisonResult.faction1Analysis.averageBS),
               faction2Raw: Math.round(comparisonResult.faction2Analysis.averageBS)
             },
             {
-              metric: '综合实力分',
+              metric: 'Overall Strength Score',
               faction1: Math.round(comparisonResult.faction1Analysis.averageCombatPower),
               faction2: Math.round(comparisonResult.faction2Analysis.averageCombatPower)
             },
             {
-              metric: '四个月平均开枪数',
+              metric: 'Four-Month Average Attacks',
               faction1: Math.round(comparisonResult.faction1Analysis.averageAttacksFourMonth),
               faction2: Math.round(comparisonResult.faction2Analysis.averageAttacksFourMonth)
             },
             {
-              metric: '最近一个月平均开枪数',
+              metric: 'Recent Month Average Attacks',
               faction1: Math.round(comparisonResult.faction1Analysis.averageAttacksPerMonth),
               faction2: Math.round(comparisonResult.faction2Analysis.averageAttacksPerMonth)
             },
             {
-              metric: '综合活跃度分数',
+              metric: 'Overall Activity Score',
               faction1: Math.round(comparisonResult.faction1Analysis.averageActivityScore),
               faction2: Math.round(comparisonResult.faction2Analysis.averageActivityScore)
             },
             {
-              metric: '成员数量',
+              metric: 'Member Count',
               faction1: comparisonResult.faction1Analysis.memberCount,
               faction2: comparisonResult.faction2Analysis.memberCount
             }
           ]" style="width: 100%">
-            <el-table-column prop="metric" label="指标" width="200" />
+            <el-table-column prop="metric" label="Metric" width="200" />
             <el-table-column :label="comparisonResult.faction1.name" align="center">
               <template #default="{ row }">
                 <span :style="{ color: (row.faction1Raw || row.faction1) > (row.faction2Raw || row.faction2) ? '#67c23a' : '#909399' }">
@@ -468,13 +469,13 @@
           </el-table>
         </div>
 
-        <!-- 成员详细分析 -->
+        <!-- Member Detailed Analysis -->
         <div class="member-analysis" style="margin-top: 30px;">
-          <h4>成员详细分析</h4>
+          <h4>Member Detailed Analysis</h4>
           <el-tabs type="border-card">
             <el-tab-pane :label="comparisonResult.faction1.name">
               <div class="member-count-info">
-                共 {{ comparisonResult.faction1Analysis.memberAnalysis.length }} 名成员
+                Total {{ comparisonResult.faction1Analysis.memberAnalysis.length }} members
               </div>
               <el-table 
                 :data="comparisonResult.faction1Analysis.memberAnalysis" 
@@ -482,47 +483,47 @@
                 max-height="600"
                 :default-sort="{ prop: 'combatPowerScore', order: 'descending' }"
               >
-                <el-table-column prop="name" label="成员名" width="120" fixed="left" />
+                <el-table-column prop="name" label="Member Name" width="120" fixed="left" />
                 <el-table-column prop="id" label="ID" width="80" />
-                <el-table-column prop="combatPowerScore" label="综合实力分" width="100" align="center" sortable>
+                <el-table-column prop="combatPowerScore" label="Overall Strength Score" width="100" align="center" sortable>
                   <template #default="{ row }">
                     <el-tag :type="row.combatPowerScore > 300 ? 'danger' : row.combatPowerScore > 200 ? 'warning' : row.combatPowerScore > 100 ? 'success' : 'info'" size="small">
                       {{ row.combatPowerScore }}
                     </el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column prop="estimatedBS" label="预估BS" width="100" align="center" sortable>
+                <el-table-column prop="estimatedBS" label="Estimated BS" width="100" align="center" sortable>
                   <template #default="{ row }">
                     <el-tag :type="row.confidence === 'high' ? 'success' : row.confidence === 'medium' ? 'warning' : 'info'" size="small">
                       {{ formatBSValue(row.estimatedBS) }}
                     </el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column prop="fourMonthAttacks" label="四月开枪数" width="100" align="center" sortable />
-                <el-table-column prop="oneMonthAttacks" label="一月开枪数" width="100" align="center" sortable />
-                <el-table-column prop="hosPercentage" label="HOS占比" width="80" align="center" sortable>
+                <el-table-column prop="fourMonthAttacks" label="4-Month Attacks" width="100" align="center" sortable />
+                <el-table-column prop="oneMonthAttacks" label="1-Month Attacks" width="100" align="center" sortable />
+                <el-table-column prop="hosPercentage" label="HOS Percentage" width="80" align="center" sortable>
                   <template #default="{ row }">
                     <span :style="{ color: row.hosPercentage > 20 ? '#67c23a' : '#909399' }">
                       {{ row.hosPercentage.toFixed(1) }}%
                     </span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="revengePercentage" label="复仇占比" width="80" align="center" sortable>
+                <el-table-column prop="revengePercentage" label="Revenge Percentage" width="80" align="center" sortable>
                   <template #default="{ row }">
                     <span :style="{ color: row.revengePercentage > 10 ? '#f56c6c' : '#909399' }">
                       {{ row.revengePercentage.toFixed(1) }}%
                     </span>
                   </template>
                 </el-table-column>
-                <el-table-column label="睡觉时间段" min-width="120">
+                <el-table-column label="Sleep Period" min-width="120">
                   <template #default="{ row }">
                     <span v-if="row.sleepPeriod" class="sleep-period">
                       {{ formatSleepPeriod(row.sleepPeriod) }}
                     </span>
-                    <span v-else style="color: #909399;">无数据</span>
+                    <span v-else style="color: #909399;">No Data</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="activityScore" label="活跃度分数" width="100" align="center" sortable>
+                <el-table-column prop="activityScore" label="Activity Score" width="100" align="center" sortable>
                   <template #default="{ row }">
                     <el-tag :type="row.activityScore > 100 ? 'success' : row.activityScore > 50 ? 'warning' : 'info'" size="small">
                       {{ Math.round(row.activityScore) }}
@@ -533,7 +534,7 @@
             </el-tab-pane>
             <el-tab-pane :label="comparisonResult.faction2.name">
               <div class="member-count-info">
-                共 {{ comparisonResult.faction2Analysis.memberAnalysis.length }} 名成员
+                Total {{ comparisonResult.faction2Analysis.memberAnalysis.length }} members
               </div>
               <el-table 
                 :data="comparisonResult.faction2Analysis.memberAnalysis" 
@@ -541,47 +542,47 @@
                 max-height="600"
                 :default-sort="{ prop: 'combatPowerScore', order: 'descending' }"
               >
-                <el-table-column prop="name" label="成员名" width="120" fixed="left" />
+                <el-table-column prop="name" label="Member Name" width="120" fixed="left" />
                 <el-table-column prop="id" label="ID" width="80" />
-                <el-table-column prop="combatPowerScore" label="综合实力分" width="100" align="center" sortable>
+                <el-table-column prop="combatPowerScore" label="Overall Strength Score" width="100" align="center" sortable>
                   <template #default="{ row }">
                     <el-tag :type="row.combatPowerScore > 300 ? 'danger' : row.combatPowerScore > 200 ? 'warning' : row.combatPowerScore > 100 ? 'success' : 'info'" size="small">
                       {{ row.combatPowerScore }}
                     </el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column prop="estimatedBS" label="预估BS" width="100" align="center" sortable>
+                <el-table-column prop="estimatedBS" label="Estimated BS" width="100" align="center" sortable>
                   <template #default="{ row }">
                     <el-tag :type="row.confidence === 'high' ? 'success' : row.confidence === 'medium' ? 'warning' : 'info'" size="small">
                       {{ formatBSValue(row.estimatedBS) }}
                     </el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column prop="fourMonthAttacks" label="四月开枪数" width="100" align="center" sortable />
-                <el-table-column prop="oneMonthAttacks" label="一月开枪数" width="100" align="center" sortable />
-                <el-table-column prop="hosPercentage" label="HOS占比" width="80" align="center" sortable>
+                <el-table-column prop="fourMonthAttacks" label="4-Month Attacks" width="100" align="center" sortable />
+                <el-table-column prop="oneMonthAttacks" label="1-Month Attacks" width="100" align="center" sortable />
+                <el-table-column prop="hosPercentage" label="HOS Percentage" width="80" align="center" sortable>
                   <template #default="{ row }">
                     <span :style="{ color: row.hosPercentage > 20 ? '#67c23a' : '#909399' }">
                       {{ row.hosPercentage.toFixed(1) }}%
                     </span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="revengePercentage" label="复仇占比" width="80" align="center" sortable>
+                <el-table-column prop="revengePercentage" label="Revenge Percentage" width="80" align="center" sortable>
                   <template #default="{ row }">
                     <span :style="{ color: row.revengePercentage > 10 ? '#f56c6c' : '#909399' }">
                       {{ row.revengePercentage.toFixed(1) }}%
                     </span>
                   </template>
                 </el-table-column>
-                <el-table-column label="睡觉时间段" min-width="120">
+                <el-table-column label="Sleep Period" min-width="120">
                   <template #default="{ row }">
                     <span v-if="row.sleepPeriod" class="sleep-period">
                       {{ formatSleepPeriod(row.sleepPeriod) }}
                     </span>
-                    <span v-else style="color: #909399;">无数据</span>
+                    <span v-else style="color: #909399;">No Data</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="activityScore" label="活跃度分数" width="100" align="center" sortable>
+                <el-table-column prop="activityScore" label="Activity Score" width="100" align="center" sortable>
                   <template #default="{ row }">
                     <el-tag :type="row.activityScore > 100 ? 'success' : row.activityScore > 50 ? 'warning' : 'info'" size="small">
                       {{ Math.round(row.activityScore) }}
@@ -596,19 +597,19 @@
     </div>
   </el-card>
   
-  <!-- 缓存数据查看对话框 -->
+  <!-- Cache Data View Dialog -->
   <el-dialog
     v-model="showCacheDataDialog"
-    title="缓存数据详情"
+    title="Cache Data Details"
     width="80%"
     :show-close="true"
   >
     <div class="cache-data-content">
       <el-tabs>
-        <el-tab-pane label="格式化JSON" name="formatted">
+        <el-tab-pane label="Formatted JSON" name="formatted">
           <pre class="json-content">{{ formatJsonData(selectedCacheData) }}</pre>
         </el-tab-pane>
-        <el-tab-pane label="原始数据" name="raw">
+        <el-tab-pane label="Raw Data" name="raw">
           <el-input
             v-model="rawJsonData"
             type="textarea"
@@ -620,8 +621,8 @@
       </el-tabs>
     </div>
     <template #footer>
-      <el-button @click="showCacheDataDialog = false">关闭</el-button>
-      <el-button type="primary" @click="copyCacheData">复制数据</el-button>
+      <el-button @click="showCacheDataDialog = false">Close</el-button>
+      <el-button type="primary" @click="copyCacheData">Copy Data</el-button>
     </template>
   </el-dialog>
 </template>
@@ -633,14 +634,14 @@ import { ElMessage } from 'element-plus'
 
 const API_BASE_URL = 'https://api.torn.com/v2'
 const RATE_LIMIT_PER_MINUTE = 50
-const RATE_LIMIT_INTERVAL = 60000 // 1分钟
+const RATE_LIMIT_INTERVAL = 60000 // 1 minute
 
-// BS预测算法常量
+// BS prediction algorithm constants
 const BS_CONSTANTS = {
   L: [2, 2.8, 3.2, 3.2, 3.6, 3.8, 3.7, 4, 4.8, 4.8, 5.2, 5.2, 5.4, 5.8, 5.8, 6, 6.4, 6.6, 6.8, 7, 7, 7, 7, 7.3, 8],
   W: [200, 500, 1000, 2000, 2750, 3000, 3500, 4000, 6000, 7000, 8000, 11000, 12420, 18000, 18100, 24140, 31260, 36610, 46640, 56520, 67775, 84535, 106305, 100000, Infinity],
-  E: [5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10, 25, 25, 25, 25, 25, 25, 25, 50, 50, 50, 50, 50, 50], // 每个健身房的能量消耗
-  // 新训练公式的属性特定常数
+  E: [5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10, 25, 25, 25, 25, 25, 25, 25, 50, 50, 50, 50, 50, 50], // energy consumption per gym
+  // new training formula attribute-specific constants
   STAT_CONSTANTS: {
     strength: { A: 1600, B: 1700, C: 700 },
     speed: { A: 1600, B: 2000, C: 1350 },
@@ -649,7 +650,7 @@ const BS_CONSTANTS = {
   }
 }
 
-// 表单数据
+// form data
 const apiForm = reactive({
   apiKeys: ''
 })
@@ -659,7 +660,7 @@ const form = reactive({
   faction2Id: ''
 })
 
-// 状态管理
+// state management
 const loading = ref(false)
 const statusMessage = ref('')
 const statusType = ref('info')
@@ -669,25 +670,25 @@ const detailedProgress = ref([])
 const comparisonResult = ref(null)
 const abortController = ref(null)
 
-// 缓存管理
+// cache management
 const dataCache = ref(new Map())
 const cacheInfo = ref([])
 
-// 缓存数据查看
+// cache data view
 const showCacheDataDialog = ref(false)
 const selectedCacheData = ref(null)
 const rawJsonData = ref('')
 
-// API密钥管理
+// API key management
 const apiKeyPool = ref([])
-const apiKeyUsage = ref(new Map()) // 跟踪每个API密钥的使用情况
+const apiKeyUsage = ref(new Map()) // track usage of each API key
 
-// 计算属性
+// computed properties
 const canStartComparison = computed(() => {
   return form.faction1Id && form.faction2Id && getValidApiKeys().length > 0
 })
 
-// 获取有效的API密钥列表
+// get valid API key list
 const getValidApiKeys = () => {
   return apiForm.apiKeys
     .split('\n')
@@ -695,7 +696,7 @@ const getValidApiKeys = () => {
     .filter(key => key.length > 0)
 }
 
-// API请求队列管理
+// API request queue management
 class ApiRequestQueue {
   constructor(apiKeys) {
     this.apiKeys = apiKeys
@@ -703,7 +704,7 @@ class ApiRequestQueue {
     this.requestQueue = []
     this.isProcessing = false
     
-    // 初始化每个API密钥的使用统计
+    // initialize usage statistics for each API key
     apiKeys.forEach(key => {
       this.keyUsage.set(key, {
         requests: [],
@@ -712,17 +713,17 @@ class ApiRequestQueue {
     })
   }
 
-  // 获取可用的API密钥
+  // get available API key
   getAvailableApiKey() {
     const now = Date.now()
     
     for (const apiKey of this.apiKeys) {
       const usage = this.keyUsage.get(apiKey)
       
-      // 清理超过1分钟的请求记录
+      // clear requests older than 1 minute
       usage.requests = usage.requests.filter(time => now - time < RATE_LIMIT_INTERVAL)
       
-      // 如果该密钥的请求数未达到限制
+      // if the key has not reached its limit
       if (usage.requests.length < RATE_LIMIT_PER_MINUTE) {
         return apiKey
       }
@@ -731,7 +732,7 @@ class ApiRequestQueue {
     return null
   }
 
-  // 记录API密钥使用
+  // record API key usage
   recordApiKeyUsage(apiKey) {
     const usage = this.keyUsage.get(apiKey)
     if (usage) {
@@ -739,7 +740,7 @@ class ApiRequestQueue {
     }
   }
 
-  // 添加请求到队列
+  // add request to queue
   async addRequest(requestFn) {
     return new Promise((resolve, reject) => {
       this.requestQueue.push({ requestFn, resolve, reject })
@@ -747,7 +748,7 @@ class ApiRequestQueue {
     })
   }
 
-  // 处理请求队列
+  // process request queue
   async processQueue() {
     if (this.isProcessing || this.requestQueue.length === 0) {
       return
@@ -794,7 +795,7 @@ const RETRY_CONFIG = {
 // 判断错误是否应该重试
 const shouldRetryError = (error) => {
   // 如果是取消请求，不重试
-  if (error.name === 'AbortError' || error.message === '请求被取消') {
+  if (error.name === 'AbortError' || error.message === 'Request canceled') {
     return false
   }
   
@@ -879,8 +880,8 @@ const fetchApiWithRetry = async (endpoint, apiKey, options = {}) => {
       console.warn(`${context} 失败，将在 ${Math.round(delay/1000)}s 后进行第${attempt + 1}次重试: ${endpoint}`, error.message)
       
       // 更新状态消息显示重试信息
-      if (statusMessage.value && !statusMessage.value.includes('已取消')) {
-        statusMessage.value = `${context} 失败，正在重试... (第${attempt + 1}次重试)`
+      if (statusMessage.value && !statusMessage.value.includes('Canceled')) {
+        statusMessage.value = `${context} failed, retrying... (attempt ${attempt + 1})`
       }
       
       // 等待重试延迟
@@ -1617,7 +1618,7 @@ const getFactionInfo = async (factionId, requestQueue) => {
     return cached
   }
   
-  statusMessage.value = `正在获取帮派 ${factionId} 的基本信息...`
+  statusMessage.value = `Fetching basic information for faction ${factionId}...`
   
   const data = await requestQueue.addRequest(async (apiKey) => {
     return await fetchApiWithRetry(`/faction/${factionId}`, apiKey, {
@@ -1629,7 +1630,7 @@ const getFactionInfo = async (factionId, requestQueue) => {
   const factionInfo = data.basic || data.faction || data
   if (!factionInfo || !factionInfo.name) {
     console.error('帮派数据结构:', data)
-    throw new Error(`获取帮派 ${factionId} 信息失败：数据格式不正确`)
+    throw new Error(`Failed to fetch faction ${factionId} information: incorrect data format`)
   }
   
   setCachedData(cacheKey, factionInfo, factionInfo.name)
@@ -1645,7 +1646,7 @@ const getFactionMembers = async (factionId, requestQueue) => {
     return cached
   }
   
-  statusMessage.value = `正在获取帮派 ${factionId} 的成员列表...`
+  statusMessage.value = `Fetching member list for faction ${factionId}...`
   
   const data = await requestQueue.addRequest(async (apiKey) => {
     return await fetchApiWithRetry(`/faction/${factionId}/members?striptags=true`, apiKey, {
@@ -1657,7 +1658,7 @@ const getFactionMembers = async (factionId, requestQueue) => {
   const members = data.members || data
   if (!members || !Array.isArray(members)) {
     console.error('成员数据结构:', data)
-    throw new Error(`获取帮派 ${factionId} 成员列表失败：数据格式不正确`)
+    throw new Error(`Failed to fetch faction ${factionId} member list: incorrect data format`)
   }
   
   // 将成员数组转换为以ID为键的对象，方便后续处理
@@ -1671,447 +1672,448 @@ const getFactionMembers = async (factionId, requestQueue) => {
 }
 
 // 获取成员个人数据（增加重试机制）
+// Fetches personal statistics for a member.
 const getMemberPersonalStats = async (memberId, requestQueue, memberIndex, totalMembers, factionId) => {
-  const cacheKey = getCacheKey('personalstats', memberId)
-  let cached = getCachedData(cacheKey)
-  
+  const cacheKey = getCacheKey('personalstats', memberId);
+  let cached = getCachedData(cacheKey);
+
   if (cached) {
-    updateDetailedProgress(`members_${factionId}`, `帮派 ${factionId} 成员数据`, memberIndex, totalMembers)
-    return cached
+    updateDetailedProgress(`members_${factionId}`, `Faction ${factionId} member data`, memberIndex, totalMembers);
+    return cached;
   }
-  
-  updateDetailedProgress(`members_${factionId}`, `帮派 ${factionId} 成员数据`, memberIndex, totalMembers)
-  
+
+  updateDetailedProgress(`members_${factionId}`, `Faction ${factionId} member data`, memberIndex, totalMembers);
+
   try {
-    // 检查是否被取消
+    // Check if the request was canceled.
     if (abortController.value?.signal.aborted) {
-      throw new Error('请求被取消')
+      throw new Error('Request canceled');
     }
-    
-    // 同时获取用户基本信息和个人统计（增加重试）
+
+    // Concurrently fetch user profile and personal stats (with retries).
     const [profileData, personalStatsData] = await Promise.all([
       requestQueue.addRequest(async (apiKey) => {
         return await fetchApiWithRetry(`/user/${memberId}`, apiKey, {
-          context: `成员 ${memberId} 基本信息`
-        })
+          context: `Member ${memberId} basic info`
+        });
       }),
       requestQueue.addRequest(async (apiKey) => {
         return await fetchApiWithRetry(`/user/${memberId}/personalstats?cat=all`, apiKey, {
-          context: `成员 ${memberId} 个人统计`
-        })
+          context: `Member ${memberId} personal stats`
+        });
       })
-    ])
-    
-    // 再次检查是否被取消
+    ]);
+
+    // Check again if the request was canceled.
     if (abortController.value?.signal.aborted) {
-      throw new Error('请求被取消')
+      throw new Error('Request canceled');
     }
-    
-    // 合并数据
+
+    // Merge the data.
     const combinedData = {
       profile: profileData.profile || profileData,
       personalstats: personalStatsData.personalstats || personalStatsData,
       criminalrecord: personalStatsData.criminalrecord || (profileData.criminalrecord || {})
-    }
-    
-    if (!combinedData.personalstats) {
-      console.warn(`成员 ${memberId} 个人数据为空`)
-      return null
-    }
-    
-    setCachedData(cacheKey, combinedData)
-    return combinedData
-  } catch (error) {
-    if (error.message === '请求被取消') {
-      throw error
-    }
-    console.error(`获取成员 ${memberId} 个人数据失败:`, error)
-    return null
-  }
-}
+    };
 
-// 获取帮派RW数据（增加重试机制）
-const getFactionRankedWars = async (factionId, requestQueue) => {
-  const fourMonthsAgo = getFourMonthsAgo()
-  const cacheKey = getCacheKey('rankedwars', factionId, getFourMonthsAgoDateString())
-  let cached = getCachedData(cacheKey)
-  
-  if (cached) {
-    return cached
+    if (!combinedData.personalstats) {
+      console.warn(`Personal data for member ${memberId} is empty`);
+      return null;
+    }
+
+    setCachedData(cacheKey, combinedData);
+    return combinedData;
+  } catch (error) {
+    if (error.message === 'Request canceled') {
+      throw error;
+    }
+    console.error(`Failed to fetch personal data for member ${memberId}:`, error);
+    return null;
   }
-  
-  statusMessage.value = `正在获取帮派 ${factionId} 的RW数据...`
-  
+};
+
+// Fetches faction ranked war data (with retry mechanism).
+const getFactionRankedWars = async (factionId, requestQueue) => {
+  const fourMonthsAgo = getFourMonthsAgo();
+  const cacheKey = getCacheKey('rankedwars', factionId, getFourMonthsAgoDateString());
+  let cached = getCachedData(cacheKey);
+
+  if (cached) {
+    return cached;
+  }
+
+  statusMessage.value = `Fetching RW data for faction ${factionId}...`;
+
   try {
-    // 1. 获取基础RW列表（增加重试）
+    // 1. Fetch the basic list of ranked wars (with retries).
     const data = await requestQueue.addRequest(async (apiKey) => {
       return await fetchApiWithRetry(`/faction/${factionId}/rankedwars`, apiKey, {
-        context: `帮派 ${factionId} RW列表`
-      })
-    })
-    
-    // 提取RW数据
-    const allRankedWars = data.rankedwars || data.rankedwarreports || data || []
-    console.log(`帮派 ${factionId} 获取到 ${Object.keys(allRankedWars).length} 条RW记录`)
-    console.log(`帮派 ${factionId} RW基础数据结构:`, {
+        context: `Faction ${factionId} RW list`
+      });
+    });
+
+    // Extract ranked war data.
+    const allRankedWars = data.rankedwars || data.rankedwarreports || data || [];
+    console.log(`Faction ${factionId} found ${Object.keys(allRankedWars).length} RW records`);
+    console.log(`Faction ${factionId} RW basic data structure:`, {
       dataKeys: Object.keys(data),
       rankedwarsKeys: data.rankedwars ? Object.keys(data.rankedwars) : [],
       firstRwId: Object.keys(allRankedWars)[0],
       firstRwData: allRankedWars[Object.keys(allRankedWars)[0]]
-    })
-    
-    // 2. 过滤四个月内的RW
-    const recentRankedWars = {}
-    const currentTime = Math.floor(Date.now() / 1000)
-    
+    });
+
+    // 2. Filter for ranked wars within the last four months.
+    const recentRankedWars = {};
+    const currentTime = Math.floor(Date.now() / 1000);
+
     for (const [warKey, war] of Object.entries(allRankedWars)) {
       if (war.start >= fourMonthsAgo) {
-        // 使用war.id作为真实的战争ID
-        recentRankedWars[war.id] = war
+        // Use war.id as the actual war ID.
+        recentRankedWars[war.id] = war;
       }
     }
-    
-    console.log(`帮派 ${factionId} 过滤后剩余 ${Object.keys(recentRankedWars).length} 条最近四个月的RW记录`)
-    console.log(`帮派 ${factionId} 真实RW ID示例:`, Object.keys(recentRankedWars).slice(0, 3))
-    
-    // 3. 高度并发获取每个RW的详细报告（增加重试机制）
-    const detailedRankedWars = []
-    const warIds = Object.keys(recentRankedWars) // 这些现在是真实的war.id
-    const apiKeys = getValidApiKeys()
-    
-    updateDetailedProgress(`rw_${factionId}`, `帮派 ${factionId} RW详细报告`, 0, warIds.length, '')
-    
+
+    console.log(`Faction ${factionId} has ${Object.keys(recentRankedWars).length} RW records left after filtering for the last four months`);
+    console.log(`Faction ${factionId} real RW ID example:`, Object.keys(recentRankedWars).slice(0, 3));
+
+    // 3. Fetch detailed reports for each ranked war with high concurrency (with retry mechanism).
+    const detailedRankedWars = [];
+    const warIds = Object.keys(recentRankedWars); // These are now the actual war.id values.
+    const apiKeys = getValidApiKeys();
+
+    updateDetailedProgress(`rw_${factionId}`, `Faction ${factionId} RW detailed report`, 0, warIds.length, '');
+
     if (warIds.length > 0) {
-      console.log(`开始并发获取 ${warIds.length} 个RW详细报告，使用 ${apiKeys.length} 个API密钥`)
-      
-      let processedCount = 0
-      const rwQueue = [...warIds] // 复制队列
-      
-      // 创建并发工作器，每个API密钥一个
+      console.log(`Starting concurrent fetch for ${warIds.length} RW detailed reports, using ${apiKeys.length} API keys`);
+
+      let processedCount = 0;
+      const rwQueue = [...warIds]; // Copy the queue.
+
+      // Create concurrent workers, one for each API key.
       const workers = apiKeys.map(async (apiKey, workerIndex) => {
-        console.log(`RW工作器 ${workerIndex + 1} 开始工作`)
-        
+        console.log(`RW worker ${workerIndex + 1} started`);
+
         while (rwQueue.length > 0) {
-          // 检查是否被取消
+          // Check if the request was canceled.
           if (abortController.value?.signal.aborted) {
-            throw new Error('请求被取消')
+            throw new Error('Request canceled');
           }
-          
-          // 从队列中取出一个RW
-          const warId = rwQueue.shift()
-          if (!warId) break
-          
+
+          // Take a ranked war from the queue.
+          const warId = rwQueue.shift();
+          if (!warId) break;
+
           try {
-            console.log(`RW工作器 ${workerIndex + 1} 开始获取RW ${warId} 的详细报告`)
-            console.log(`API请求URL: /faction/${warId}/rankedwarreport`)
-            console.log(`RW ID类型和值:`, { warId, type: typeof warId, isString: typeof warId === 'string' })
-            
-            // 使用重试机制获取RW详细报告
+            console.log(`RW worker ${workerIndex + 1} started fetching detailed report for RW ${warId}`);
+            console.log(`API request URL: /faction/${warId}/rankedwarreport`);
+            console.log(`RW ID type and value:`, { warId, type: typeof warId, isString: typeof warId === 'string' });
+
+            // Fetch the detailed ranked war report with retries.
             const reportData = await fetchApiWithRetry(`/faction/${warId}/rankedwarreport`, apiKey, {
-              context: `RW ${warId} 详细报告`
-            })
-            
+              context: `RW ${warId} detailed report`
+            });
+
             if (abortController.value?.signal.aborted) {
-              throw new Error('请求被取消')
+              throw new Error('Request canceled');
             }
-            
-            console.log(`RW ${warId} 详细报告数据:`, reportData)
-            
+
+            console.log(`RW ${warId} detailed report data:`, reportData);
+
             if (reportData.rankedwarreport) {
               detailedRankedWars.push({
-                id: warId, // 这现在是真实的war.id
+                id: warId, // This is now the actual war.id.
                 basicInfo: recentRankedWars[warId],
                 report: reportData.rankedwarreport
-              })
-              console.log(`RW工作器 ${workerIndex + 1} 成功获取RW ${warId}`)
+              });
+              console.log(`RW worker ${workerIndex + 1} successfully fetched RW ${warId}`);
             } else if (reportData.war || reportData.factions) {
-              // 尝试直接使用数据
+              // Try to use the data directly.
               detailedRankedWars.push({
-                id: warId, // 这现在是真实的war.id
+                id: warId, // This is now the actual war.id.
                 basicInfo: recentRankedWars[warId],
                 report: reportData
-              })
-              console.log(`RW工作器 ${workerIndex + 1} 使用直接格式获取RW ${warId}`)
+              });
+              console.log(`RW worker ${workerIndex + 1} fetched RW ${warId} using direct format`);
             } else {
-              console.warn(`RW ${warId} 报告数据格式异常:`, Object.keys(reportData))
+              console.warn(`RW ${warId} report data format is abnormal:`, Object.keys(reportData));
               detailedRankedWars.push({
-                id: warId, // 这现在是真实的war.id
+                id: warId, // This is now the actual war.id.
                 basicInfo: recentRankedWars[warId],
                 report: null
-              })
+              });
             }
-            
+
           } catch (reportError) {
-            if (reportError.message === '请求被取消') {
-              throw reportError
+            if (reportError.message === 'Request canceled') {
+              throw reportError;
             }
-            console.error(`RW工作器 ${workerIndex + 1} 获取RW ${warId} 详细报告失败:`, reportError)
+            console.error(`RW worker ${workerIndex + 1} failed to fetch detailed report for RW ${warId}:`, reportError);
             detailedRankedWars.push({
-              id: warId, // 这现在是真实的war.id
+              id: warId, // This is now the actual war.id.
               basicInfo: recentRankedWars[warId],
               report: null
-            })
+            });
           }
-          
-          // 更新进度
-          processedCount++
-          updateDetailedProgress(`rw_${factionId}`, `帮派 ${factionId} RW详细报告`, processedCount, warIds.length, '')
-          
-          // 等待间隔
-          await new Promise(resolve => setTimeout(resolve, 1200))
-        }
-        
-        console.log(`RW工作器 ${workerIndex + 1} 完成工作`)
-      })
-      
-      // 等待所有工作器完成
-      await Promise.all(workers)
-    }
-    
-    updateDetailedProgress(`rw_${factionId}`, `帮派 ${factionId} RW详细报告`, warIds.length, warIds.length, 'success')
-    
-    setCachedData(cacheKey, detailedRankedWars)
-    return detailedRankedWars
-  } catch (error) {
-    console.error(`获取帮派 ${factionId} RW数据失败:`, error)
-    return []
-  }
-}
 
-// 获取帮派Chain数据（增加重试机制）
-const getFactionChains = async (factionId, requestQueue, rankedWars = []) => {
-  const fourMonthsAgo = getFourMonthsAgo()
-  const cacheKey = getCacheKey('chains', factionId, getFourMonthsAgoDateString())
-  let cached = getCachedData(cacheKey)
-  
-  if (cached) {
-    return cached
+          // Update progress.
+          processedCount++;
+          updateDetailedProgress(`rw_${factionId}`, `Faction ${factionId} RW detailed report`, processedCount, warIds.length, '');
+
+          // Wait interval.
+          await new Promise(resolve => setTimeout(resolve, 1200));
+        }
+
+        console.log(`RW worker ${workerIndex + 1} finished work`);
+      });
+
+      // Wait for all workers to complete.
+      await Promise.all(workers);
+    }
+
+    updateDetailedProgress(`rw_${factionId}`, `Faction ${factionId} RW detailed report`, warIds.length, warIds.length, 'success');
+
+    setCachedData(cacheKey, detailedRankedWars);
+    return detailedRankedWars;
+  } catch (error) {
+    console.error(`Failed to fetch RW data for faction ${factionId}:`, error);
+    return [];
   }
-  
-  statusMessage.value = `正在获取帮派 ${factionId} 的Chain数据...`
-  
+};
+
+// Fetches faction chain data (with retry mechanism).
+const getFactionChains = async (factionId, requestQueue, rankedWars = []) => {
+  const fourMonthsAgo = getFourMonthsAgo();
+  const cacheKey = getCacheKey('chains', factionId, getFourMonthsAgoDateString());
+  let cached = getCachedData(cacheKey);
+
+  if (cached) {
+    return cached;
+  }
+
+  statusMessage.value = `Fetching Chain data for faction ${factionId}...`;
+
   try {
-    // 1. 收集所有RW的时间范围
-    const timeRanges = []
+    // 1. Collect time ranges for all ranked wars.
+    const timeRanges = [];
     for (const rwData of rankedWars) {
       if (rwData.report) {
         timeRanges.push({
           start: rwData.report.start,
           end: rwData.report.end,
           warId: rwData.id
-        })
+        });
       } else if (rwData.basicInfo) {
-        // 如果没有详细报告，使用基础信息
+        // If there is no detailed report, use basic info.
         timeRanges.push({
           start: rwData.basicInfo.start,
-          end: rwData.basicInfo.end || (rwData.basicInfo.start + 24 * 3600), // 假设战争持续24小时
+          end: rwData.basicInfo.end || (rwData.basicInfo.start + 24 * 3600), // Assuming the war lasts 24 hours.
           warId: rwData.id
-        })
+        });
       }
     }
-    
-    console.log(`帮派 ${factionId} 需要获取 ${timeRanges.length} 个RW时间段的Chain数据`)
-    
-    // 2. 获取四个月内的所有Chain基础列表（增加重试）
+
+    console.log(`Faction ${factionId} needs to fetch Chain data for ${timeRanges.length} RW time periods`);
+
+    // 2. Get all basic Chain lists within four months (with retry).
     const data = await requestQueue.addRequest(async (apiKey) => {
       return await fetchApiWithRetry(`/faction/${factionId}/chains?from=${fourMonthsAgo}`, apiKey, {
-        context: `帮派 ${factionId} Chain列表`
-      })
-    })
-    
-    const allChains = data.chains || data || []
-    console.log(`帮派 ${factionId} 获取到 ${Object.keys(allChains).length} 条Chain记录`)
-    
-    // 3. 过滤RW时间范围内的Chain
-    const rwChains = {}
+        context: `Faction ${factionId} Chain list`
+      });
+    });
+
+    const allChains = data.chains || data || [];
+    console.log(`Faction ${factionId} found ${Object.keys(allChains).length} Chain records`);
+
+    // 3. Filter Chains within the ranked war time range.
+    const rwChains = {};
     for (const [chainKey, chain] of Object.entries(allChains)) {
-      // 检查Chain是否在任何RW时间范围内
+      // Check if the Chain is within any RW time range.
       for (const timeRange of timeRanges) {
-        const chainStart = chain.start
-        const chainEnd = chain.end
-        
-        // 判断Chain时间是否与RW时间重叠
+        const chainStart = chain.start;
+        const chainEnd = chain.end;
+
+        // Determine if Chain time overlaps with RW time.
         if ((chainStart >= timeRange.start && chainStart <= timeRange.end) ||
             (chainEnd >= timeRange.start && chainEnd <= timeRange.end) ||
             (chainStart <= timeRange.start && chainEnd >= timeRange.end)) {
-          
-          // 使用chain.id作为真实的Chain ID
+
+          // Use chain.id as the real Chain ID.
           if (!rwChains[chain.id]) {
             rwChains[chain.id] = {
               ...chain,
               relatedWars: []
-            }
+            };
           }
-          rwChains[chain.id].relatedWars.push(timeRange.warId)
+          rwChains[chain.id].relatedWars.push(timeRange.warId);
         }
       }
     }
-    
-    console.log(`帮派 ${factionId} 过滤后剩余 ${Object.keys(rwChains).length} 条RW相关的Chain记录`)
-    
-    // 4. 高度并发获取每个Chain的详细报告（增加重试机制）
-    const detailedChains = []
-    const chainIds = Object.keys(rwChains) // 这些现在是真实的chain.id
-    const apiKeys = getValidApiKeys()
-    
-    updateDetailedProgress(`chains_${factionId}`, `帮派 ${factionId} Chain详细报告`, 0, chainIds.length, '')
-    
+
+    console.log(`Faction ${factionId} has ${Object.keys(rwChains).length} RW-related Chain records left after filtering`);
+
+    // 4. Fetch detailed reports for each Chain with high concurrency (with retry mechanism).
+    const detailedChains = [];
+    const chainIds = Object.keys(rwChains); // These are now the actual chain.id values.
+    const apiKeys = getValidApiKeys();
+
+    updateDetailedProgress(`chains_${factionId}`, `Faction ${factionId} Chain detailed report`, 0, chainIds.length, '');
+
     if (chainIds.length > 0) {
-      console.log(`开始并发获取 ${chainIds.length} 个Chain详细报告，使用 ${apiKeys.length} 个API密钥`)
-      
-      let processedCount = 0
-      const chainQueue = [...chainIds] // 复制队列
-      
-      // 创建并发工作器，每个API密钥一个
+      console.log(`Starting concurrent fetch for ${chainIds.length} Chain detailed reports, using ${apiKeys.length} API keys`);
+
+      let processedCount = 0;
+      const chainQueue = [...chainIds]; // Copy the queue.
+
+      // Create concurrent workers, one for each API key.
       const workers = apiKeys.map(async (apiKey, workerIndex) => {
-        console.log(`Chain工作器 ${workerIndex + 1} 开始工作`)
-        
+        console.log(`Chain worker ${workerIndex + 1} started`);
+
         while (chainQueue.length > 0) {
-          // 检查是否被取消
+          // Check if the request was canceled.
           if (abortController.value?.signal.aborted) {
-            throw new Error('请求被取消')
+            throw new Error('Request canceled');
           }
-          
-          // 从队列中取出一个Chain
-          const chainId = chainQueue.shift()
-          if (!chainId) break
-          
+
+          // Take a Chain from the queue.
+          const chainId = chainQueue.shift();
+          if (!chainId) break;
+
           try {
-            console.log(`Chain工作器 ${workerIndex + 1} 开始获取Chain ${chainId} 的详细报告`)
-            
-            // 使用重试机制获取Chain详细报告
+            console.log(`Chain worker ${workerIndex + 1} started fetching detailed report for Chain ${chainId}`);
+
+            // Fetch the detailed Chain report with retries.
             const reportData = await fetchApiWithRetry(`/faction/${chainId}/chainreport`, apiKey, {
-              context: `Chain ${chainId} 详细报告`
-            })
-            
+              context: `Chain ${chainId} detailed report`
+            });
+
             if (abortController.value?.signal.aborted) {
-              throw new Error('请求被取消')
+              throw new Error('Request canceled');
             }
-            
+
             if (reportData.chainreport && reportData.chainreport.attackers) {
               detailedChains.push({
-                id: chainId, // 这现在是真实的chain.id
+                id: chainId, // This is now the actual chain.id.
                 basicInfo: rwChains[chainId],
                 report: reportData.chainreport,
                 relatedWars: rwChains[chainId].relatedWars
-              })
-              console.log(`Chain工作器 ${workerIndex + 1} 成功获取Chain ${chainId}，攻击者数量: ${reportData.chainreport.attackers.length}`)
+              });
+              console.log(`Chain worker ${workerIndex + 1} successfully fetched Chain ${chainId}, number of attackers: ${reportData.chainreport.attackers.length}`);
             } else if (reportData.attackers) {
               detailedChains.push({
-                id: chainId, // 这现在是真实的chain.id
+                id: chainId, // This is now the actual chain.id.
                 basicInfo: rwChains[chainId],
                 report: reportData,
                 relatedWars: rwChains[chainId].relatedWars
-              })
-              console.log(`Chain工作器 ${workerIndex + 1} 获取Chain ${chainId}（直接格式），攻击者数量: ${reportData.attackers.length}`)
+              });
+              console.log(`Chain worker ${workerIndex + 1} fetched Chain ${chainId} (direct format), number of attackers: ${reportData.attackers.length}`);
             } else {
-              console.warn(`Chain ${chainId} 报告数据结构异常`)
+              console.warn(`Chain ${chainId} report data structure is abnormal`);
               detailedChains.push({
-                id: chainId, // 这现在是真实的chain.id
+                id: chainId, // This is now the actual chain.id.
                 basicInfo: rwChains[chainId],
                 report: null,
                 relatedWars: rwChains[chainId].relatedWars
-              })
+              });
             }
-            
+
           } catch (reportError) {
-            if (reportError.message === '请求被取消') {
-              throw reportError
+            if (reportError.message === 'Request canceled') {
+              throw reportError;
             }
-            console.error(`Chain工作器 ${workerIndex + 1} 获取Chain ${chainId} 详细报告失败:`, reportError)
+            console.error(`Chain worker ${workerIndex + 1} failed to fetch detailed report for Chain ${chainId}:`, reportError);
             detailedChains.push({
-              id: chainId, // 这现在是真实的chain.id
+              id: chainId, // This is now the actual chain.id.
               basicInfo: rwChains[chainId],
               report: null,
               relatedWars: rwChains[chainId].relatedWars
-            })
+            });
           }
-          
-          // 更新进度
-          processedCount++
-          updateDetailedProgress(`chains_${factionId}`, `帮派 ${factionId} Chain详细报告`, processedCount, chainIds.length, '')
-          
-          // 等待间隔
-          await new Promise(resolve => setTimeout(resolve, 1200))
-        }
-        
-        console.log(`Chain工作器 ${workerIndex + 1} 完成工作`)
-      })
-      
-      // 等待所有工作器完成
-      await Promise.all(workers)
-    }
-    
-    updateDetailedProgress(`chains_${factionId}`, `帮派 ${factionId} Chain详细报告`, chainIds.length, chainIds.length, 'success')
-    
-    setCachedData(cacheKey, detailedChains)
-    return detailedChains
-  } catch (error) {
-    console.error(`获取帮派 ${factionId} Chain数据失败:`, error)
-    return []
-  }
-}
 
-// 分析Chain数据中的枪数和活跃时间
+          // Update progress.
+          processedCount++;
+          updateDetailedProgress(`chains_${factionId}`, `Faction ${factionId} Chain detailed report`, processedCount, chainIds.length, '');
+
+          // Wait interval.
+          await new Promise(resolve => setTimeout(resolve, 1200));
+        }
+
+        console.log(`Chain worker ${workerIndex + 1} finished work`);
+      });
+
+      // Wait for all workers to complete.
+      await Promise.all(workers);
+    }
+
+    updateDetailedProgress(`chains_${factionId}`, `Faction ${factionId} Chain detailed report`, chainIds.length, chainIds.length, 'success');
+
+    setCachedData(cacheKey, detailedChains);
+    return detailedChains;
+  } catch (error) {
+    console.error(`Failed to fetch Chain data for faction ${factionId}:`, error);
+    return [];
+  }
+};
+
+// Analyzes attack counts and active times in Chain data.
 const analyzeChainActivity = (chains) => {
-  let totalAttacks = 0
-  let hosAttacks = 0
-  let revengeAttacks = 0
-  const timeZoneHours = new Array(24).fill(0)
-  const fourMonthsAgo = getFourMonthsAgo()
-  const oneMonthAgo = Math.floor(Date.now() / 1000) - (30 * 24 * 3600)
-  
-  let recentTotalAttacks = 0 // 最近一个月
-  
-  console.log(`分析整体Chain活跃度 - 总Chain数: ${chains.length}`)
-  
+  let totalAttacks = 0;
+  let hosAttacks = 0;
+  let revengeAttacks = 0;
+  const timeZoneHours = new Array(24).fill(0);
+  const fourMonthsAgo = getFourMonthsAgo();
+  const oneMonthAgo = Math.floor(Date.now() / 1000) - (30 * 24 * 3600);
+
+  let recentTotalAttacks = 0; // Last month.
+
+  console.log(`Analyzing overall Chain activity - Total chains: ${chains.length}`);
+
   chains.forEach((chainData, chainIndex) => {
     if (chainData.report && chainData.report.attackers) {
-      // 使用新的数据结构：chainreport.attackers数组
+      // Using new data structure: chainreport.attackers array.
       chainData.report.attackers.forEach(attacker => {
         if (attacker.attacks) {
-          const attacks = attacker.attacks
-          totalAttacks += attacks.total || 0
-          hosAttacks += attacks.hospitalize || 0
-          revengeAttacks += attacks.retaliations || 0
-          
-          // 检查是否是最近一个月（使用Chain的开始时间作为近似）
+          const attacks = attacker.attacks;
+          totalAttacks += attacks.total || 0;
+          hosAttacks += attacks.hospitalize || 0;
+          revengeAttacks += attacks.retaliations || 0;
+
+          // Check if it's the last month (using Chain start time as an approximation).
           if (chainData.report.start >= oneMonthAgo) {
-            recentTotalAttacks += attacks.total || 0
+            recentTotalAttacks += attacks.total || 0;
           }
-          
-          // 时区分析 - 改进算法
-          const totalAttackCount = attacks.total || 0
+
+          // Timezone analysis - improved algorithm.
+          const totalAttackCount = attacks.total || 0;
           if (totalAttackCount > 0) {
-            const chainStart = new Date(chainData.report.start * 1000)
-            const chainEnd = new Date(chainData.report.end * 1000)
-            const chainDuration = (chainData.report.end - chainData.report.start) / 3600 // 小时
-            
-            // 根据Chain持续时间和攻击数量，估算攻击分布
+            const chainStart = new Date(chainData.report.start * 1000);
+            const chainEnd = new Date(chainData.report.end * 1000);
+            const chainDuration = (chainData.report.end - chainData.report.start) / 3600; // in hours
+
+            // Estimate attack distribution based on Chain duration and number of attacks.
             for (let i = 0; i < totalAttackCount; i++) {
-              // 在Chain持续时间内均匀分布攻击时间
-              const attackOffset = (chainDuration * i / totalAttackCount) // 攻击在Chain中的相对时间（小时）
-              const attackTime = new Date(chainStart.getTime() + attackOffset * 3600 * 1000)
-              const beijingHour = (attackTime.getUTCHours() + 8) % 24
-              timeZoneHours[beijingHour]++
+              // Evenly distribute attack times within the Chain duration.
+              const attackOffset = (chainDuration * i / totalAttackCount); // Relative time of the attack in the Chain (hours).
+              const attackTime = new Date(chainStart.getTime() + attackOffset * 3600 * 1000);
+              const beijingHour = (attackTime.getUTCHours()) % 24; // Changed from +8 to UTC (no offset).
+              timeZoneHours[beijingHour]++;
             }
           }
         }
-      })
+      });
     }
-  })
-  
-  // 计算活跃时间段
-  const peakHours = []
-  const maxActivity = Math.max(...timeZoneHours)
-  const threshold = maxActivity * 0.7 // 70%以上的活跃度认为是活跃时间段
-  
+  });
+
+  // Calculate active time periods.
+  const peakHours = [];
+  const maxActivity = Math.max(...timeZoneHours);
+  const threshold = maxActivity * 0.7; // Activity above 70% is considered an active period.
+
   for (let hour = 0; hour < 24; hour++) {
     if (timeZoneHours[hour] >= threshold && timeZoneHours[hour] > 0) {
-      peakHours.push(hour)
+      peakHours.push(hour);
     }
   }
-  
+
   const result = {
     totalAttacks,
     recentAttacks: recentTotalAttacks,
@@ -2119,35 +2121,36 @@ const analyzeChainActivity = (chains) => {
     revengePercentage: totalAttacks > 0 ? (revengeAttacks / totalAttacks * 100) : 0,
     peakHours,
     timeZoneDistribution: timeZoneHours
-  }
-  
-  console.log(`整体Chain活跃度: 总攻击${totalAttacks}, 近期攻击${recentTotalAttacks}, HOS${result.hosPercentage.toFixed(1)}%`)
-  return result
-}
+  };
 
-// 计算活跃度分数（重新设计，主要基于开枪数）
+  console.log(`Overall Chain activity: Total attacks ${totalAttacks}, Recent attacks ${recentTotalAttacks}, HOS ${result.hosPercentage.toFixed(1)}%`);
+  return result;
+};
+
+
+// Calculate activity score (redesigned, mainly based on attack count).
 const calculateActivityScore = (chainActivity, bsScore) => {
-  // 新的活跃度计算：主要看开枪数，不设上限
-  const fourMonthWeight = 0.6  // 四个月开枪数权重
-  const oneMonthWeight = 0.3   // 一个月开枪数权重  
-  const timeRangeWeight = 0.1  // 活跃时间段权重
-  
-  // 直接使用开枪数，不做标准化限制
-  const fourMonthScore = chainActivity.fourMonthAttacks * fourMonthWeight
-  const oneMonthScore = chainActivity.oneMonthAttacks * oneMonthWeight
-  
-  // 活跃时间段多样性加分（最多加20分）
-  const timeRangeBonus = chainActivity.peakHours.length > 0 ? 
-    Math.min(chainActivity.peakHours.length * 2.5, 20) : 0
-  
-  const finalScore = fourMonthScore + oneMonthScore + timeRangeBonus
-  
-  console.log(`活跃度分数计算: 四月攻击=${chainActivity.fourMonthAttacks}*${fourMonthWeight}=${fourMonthScore}, 一月攻击=${chainActivity.oneMonthAttacks}*${oneMonthWeight}=${oneMonthScore}, 时间多样性=${timeRangeBonus}, 最终分数=${finalScore}`)
-  
-  return Math.max(0, finalScore)
-}
+  // New activity calculation: mainly based on attack count, no upper limit.
+  const fourMonthWeight = 0.6; // Four-month attack count weight.
+  const oneMonthWeight = 0.3;  // One-month attack count weight.
+  const timeRangeWeight = 0.1; // Active time period weight.
 
-// 计算综合实力分（新增）
+  // Use attack count directly, no normalization limit.
+  const fourMonthScore = chainActivity.fourMonthAttacks * fourMonthWeight;
+  const oneMonthScore = chainActivity.oneMonthAttacks * oneMonthWeight;
+
+  // Bonus for diversity of active time periods (up to 20 points).
+  const timeRangeBonus = chainActivity.peakHours.length > 0 ?
+    Math.min(chainActivity.peakHours.length * 2.5, 20) : 0;
+
+  const finalScore = fourMonthScore + oneMonthScore + timeRangeBonus;
+
+  console.log(`Activity score calculation: Four-month attacks=${chainActivity.fourMonthAttacks}*${fourMonthWeight}=${fourMonthScore}, One-month attacks=${chainActivity.oneMonthAttacks}*${oneMonthWeight}=${oneMonthScore}, Time diversity=${timeRangeBonus}, Final score=${finalScore}`);
+
+  return Math.max(0, finalScore);
+};
+
+// Calculate combat power score (new).
 const calculateCombatPowerScore = (memberData) => {
   const {
     estimatedBS,
@@ -2158,39 +2161,39 @@ const calculateCombatPowerScore = (memberData) => {
     revengePercentage,
     peakHours,
     activityScore
-  } = memberData
-  
-  // 新的权重分配（不包含BS）
+  } = memberData;
+
+  // New weight distribution (excluding BS).
   const weights = {
-    activity: 0.75,     // 活跃度权重75%
-    attackQuality: 0.15, // 攻击质量权重15%
-    consistency: 0.10,  // 一致性权重10%
-    timeRange: 0.0      // 时间覆盖权重0%
-  }
-  
-  // 1. 活跃度分数
-  const activityComponent = activityScore * weights.activity
-  
-  // 2. 攻击质量分数（HOS占比和攻击强度）
-  const hosBonus = hosPercentage * 2 // HOS占比每1%得2分
-  const attackIntensity = fourMonthAttacks > 0 ? Math.min(fourMonthAttacks / 10, 50) : 0 // 每10枪得1分，上限50
-  const qualityComponent = (hosBonus + attackIntensity) * weights.attackQuality
-  
-  // 3. 一致性分数（最近一个月表现）
-  const consistencyRatio = fourMonthAttacks > 0 ? oneMonthAttacks / (fourMonthAttacks / 4) : 0
-  const consistencyComponent = Math.min(consistencyRatio * 100, 150) * weights.consistency
-  
-  // 4. 时间覆盖分数
-  const timeRangeComponent = (peakHours.length * 10) * weights.timeRange
-  
-  // 计算基础分数（不含BS）
-  const baseScore = activityComponent + qualityComponent + consistencyComponent + timeRangeComponent
-  
-  // 新公式：(基础分数 / 1000) * BS分
-  const finalScore = (baseScore / 1000) * bsScore
-  
-  console.log(`综合实力分计算 - 活跃度:${activityComponent.toFixed(1)}, 质量:${qualityComponent.toFixed(1)}, 一致性:${consistencyComponent.toFixed(1)}, 时间:${timeRangeComponent.toFixed(1)}, 基础分数:${baseScore.toFixed(1)}, BS分:${bsScore}, 最终分数:${finalScore.toFixed(1)}`)
-  
+    activity: 0.75,       // Activity weight 75%
+    attackQuality: 0.15,  // Attack quality weight 15%
+    consistency: 0.10,    // Consistency weight 10%
+    timeRange: 0.0        // Time coverage weight 0%
+  };
+
+  // 1. Activity score component.
+  const activityComponent = activityScore * weights.activity;
+
+  // 2. Attack quality score (HOS percentage and attack intensity).
+  const hosBonus = hosPercentage * 2; // 2 points for every 1% of HOS.
+  const attackIntensity = fourMonthAttacks > 0 ? Math.min(fourMonthAttacks / 10, 50) : 0; // 1 point per 10 attacks, max 50.
+  const qualityComponent = (hosBonus + attackIntensity) * weights.attackQuality;
+
+  // 3. Consistency score (performance in the last month).
+  const consistencyRatio = fourMonthAttacks > 0 ? oneMonthAttacks / (fourMonthAttacks / 4) : 0;
+  const consistencyComponent = Math.min(consistencyRatio * 100, 150) * weights.consistency;
+
+  // 4. Time coverage score.
+  const timeRangeComponent = (peakHours.length * 10) * weights.timeRange;
+
+  // Calculate base score (excluding BS).
+  const baseScore = activityComponent + qualityComponent + consistencyComponent + timeRangeComponent;
+
+  // New formula: (baseScore / 1000) * bsScore.
+  const finalScore = (baseScore / 1000) * bsScore;
+
+  console.log(`Combat Power Score Calculation - Activity:${activityComponent.toFixed(1)}, Quality:${qualityComponent.toFixed(1)}, Consistency:${consistencyComponent.toFixed(1)}, Time:${timeRangeComponent.toFixed(1)}, Base Score:${baseScore.toFixed(1)}, BS Score:${bsScore}, Final Score:${finalScore.toFixed(1)}`);
+
   return {
     totalScore: Math.round(finalScore),
     components: {
@@ -2201,40 +2204,40 @@ const calculateCombatPowerScore = (memberData) => {
       baseScore: Math.round(baseScore),
       bsMultiplier: bsScore
     }
-  }
-}
+  };
+};
 
-// 主要的帮派实力分析函数
+// Main faction strength analysis function.
 const analyzeFactionStrength = (factionData) => {
-  console.log('开始帮派实力分析:', factionData)
-  
+  console.log('Starting faction strength analysis:', factionData);
+
   if (!factionData.members || !factionData.personalStats || !factionData.chains) {
-    console.warn('帮派实力分析：缺少必要数据')
-    return null
+    console.warn('Faction strength analysis: missing necessary data');
+    return null;
   }
-  
-  // 分析整体Chain活跃度
-  const overallActivity = analyzeChainActivity(factionData.chains)
-  
-  // 分析每个成员的数据
+
+  // Analyze overall Chain activity.
+  const overallActivity = analyzeChainActivity(factionData.chains);
+
+  // Analyze data for each member.
   const memberAnalysis = analyzeMemberData(
-    factionData.members, 
-    factionData.personalStats, 
+    factionData.members,
+    factionData.personalStats,
     factionData.chains
-  )
-  
-  // 计算帮派总实力分数（使用新的综合实力分）
-  const totalCombatPower = memberAnalysis.reduce((sum, member) => sum + member.combatPowerScore, 0)
-  const averageCombatPower = memberAnalysis.length > 0 ? totalCombatPower / memberAnalysis.length : 0
-  
-  // 计算总BS和平均BS
-  const totalBS = memberAnalysis.reduce((sum, member) => sum + member.estimatedBS, 0)
-  const averageBS = memberAnalysis.length > 0 ? totalBS / memberAnalysis.length : 0
-  
-  // 计算总活跃度分数和平均活跃度分数
-  const totalActivityScore = memberAnalysis.reduce((sum, member) => sum + member.activityScore, 0)
-  const averageActivityScore = memberAnalysis.length > 0 ? totalActivityScore / memberAnalysis.length : 0
-  
+  );
+
+  // Calculate total faction power score (using the new combat power score).
+  const totalCombatPower = memberAnalysis.reduce((sum, member) => sum + member.combatPowerScore, 0);
+  const averageCombatPower = memberAnalysis.length > 0 ? totalCombatPower / memberAnalysis.length : 0;
+
+  // Calculate total BS and average BS.
+  const totalBS = memberAnalysis.reduce((sum, member) => sum + member.estimatedBS, 0);
+  const averageBS = memberAnalysis.length > 0 ? totalBS / memberAnalysis.length : 0;
+
+  // Calculate total activity score and average activity score.
+  const totalActivityScore = memberAnalysis.reduce((sum, member) => sum + member.activityScore, 0);
+  const averageActivityScore = memberAnalysis.length > 0 ? totalActivityScore / memberAnalysis.length : 0;
+
   return {
     name: factionData.name,
     memberCount: memberAnalysis.length,
@@ -2244,16 +2247,17 @@ const analyzeFactionStrength = (factionData) => {
     averageActivityScore,
     totalBS,
     averageBS,
-    totalCombatPower,        // 新增
-    averageCombatPower,      // 新增
-    averageAttacksPerMonth: memberAnalysis.length > 0 
-      ? memberAnalysis.reduce((sum, m) => sum + m.oneMonthAttacks, 0) / memberAnalysis.length 
+    totalCombatPower,       // New
+    averageCombatPower,     // New
+    averageAttacksPerMonth: memberAnalysis.length > 0
+      ? memberAnalysis.reduce((sum, m) => sum + m.oneMonthAttacks, 0) / memberAnalysis.length
       : 0,
-    averageAttacksFourMonth: memberAnalysis.length > 0 
-      ? memberAnalysis.reduce((sum, m) => sum + m.fourMonthAttacks, 0) / memberAnalysis.length 
+    averageAttacksFourMonth: memberAnalysis.length > 0
+      ? memberAnalysis.reduce((sum, m) => sum + m.fourMonthAttacks, 0) / memberAnalysis.length
       : 0
-  }
-}
+  };
+};
+
 
 // 计算特定时间段的帮派有效实力
 const calculateFactionStrengthAtHour = (factionAnalysis, hour) => {
@@ -2430,679 +2434,679 @@ const predictPVPWinRate = (faction1Analysis, faction2Analysis) => {
 
 // 主要的数据获取函数
 const fetchAllData = async () => {
-  const apiKeys = getValidApiKeys()
-  const requestQueue = new ApiRequestQueue(apiKeys)
-  
-  abortController.value = new AbortController()
-  
-  try {
-    // 先统计可用的缓存数据
-    console.log('检查可用缓存数据...')
-    const faction1Id = form.faction1Id
-    const faction2Id = form.faction2Id
-    const dateString = getFourMonthsAgoDateString()
-    
-    const cacheStats = {
-      faction1: {
-        info: !!getCachedData(getCacheKey('faction', faction1Id)),
-        members: !!getCachedData(getCacheKey('members', faction1Id)),
-        rankedwars: !!getCachedData(getCacheKey('rankedwars', faction1Id, dateString)),
-        chains: !!getCachedData(getCacheKey('chains', faction1Id, dateString))
-      },
-      faction2: {
-        info: !!getCachedData(getCacheKey('faction', faction2Id)),
-        members: !!getCachedData(getCacheKey('members', faction2Id)),
-        rankedwars: !!getCachedData(getCacheKey('rankedwars', faction2Id, dateString)),
-        chains: !!getCachedData(getCacheKey('chains', faction2Id, dateString))
-      }
-    }
-    
-    const totalCacheableItems = 8 // 两个帮派各4项数据
-    const cachedItems = Object.values(cacheStats.faction1).filter(Boolean).length + 
-                       Object.values(cacheStats.faction2).filter(Boolean).length
-    const cacheHitRateBasic = Math.round((cachedItems / totalCacheableItems) * 100)
-    
-    console.log(`缓存状态: ${cachedItems}/${totalCacheableItems} 项基础数据已缓存 (${cacheHitRateBasic}%)`)
-    statusMessage.value = `开始数据获取... (${cachedItems}/${totalCacheableItems} 项基础数据已缓存)`
-    
-    // 总步骤计算（这里是动态的，因为RW和Chain数量未知）
-    let totalSteps = 6 // 基本信息获取
-    let currentStep = 0
-    
-    // 获取帮派基本信息
-    updateProgress(++currentStep, totalSteps, '获取帮派基本信息...')
-    console.log('开始获取帮派基本信息...')
-    
-    // 检查是否被取消
-    if (abortController.value?.signal.aborted) {
-      throw new Error('请求被取消')
-    }
-    
-    const [faction1Info, faction2Info] = await Promise.all([
-      getFactionInfo(form.faction1Id, requestQueue),
-      getFactionInfo(form.faction2Id, requestQueue)
-    ])
-    console.log('帮派基本信息获取完成:', { faction1Info, faction2Info })
-    
-    // 获取成员列表
-    updateProgress(++currentStep, totalSteps, '获取成员列表...')
-    console.log('开始获取成员列表...')
-    
-    // 检查是否被取消
-    if (abortController.value?.signal.aborted) {
-      throw new Error('请求被取消')
-    }
-    
-    const [faction1Members, faction2Members] = await Promise.all([
-      getFactionMembers(form.faction1Id, requestQueue),
-      getFactionMembers(form.faction2Id, requestQueue)
-    ])
-    console.log('成员列表获取完成:', {
-      faction1MemberCount: getMemberCount(faction1Members),
-      faction2MemberCount: getMemberCount(faction2Members)
-    })
-    
-    // 获取RW数据
-    updateProgress(++currentStep, totalSteps, '获取RW数据...')
-    console.log('开始获取RW数据...')
-    
-    // 检查是否被取消
-    if (abortController.value?.signal.aborted) {
-      throw new Error('请求被取消')
-    }
-    
-    const [faction1RankedWars, faction2RankedWars] = await Promise.all([
-      getFactionRankedWars(form.faction1Id, requestQueue),
-      getFactionRankedWars(form.faction2Id, requestQueue)
-    ])
-    console.log('RW数据获取完成:', {
-      faction1RwCount: faction1RankedWars.length,
-      faction2RwCount: faction2RankedWars.length
-    })
-    
-    // 获取Chain数据
-    updateProgress(++currentStep, totalSteps, '获取Chain数据...')
-    console.log('开始获取Chain数据...')
-    
-    // 检查是否被取消
-    if (abortController.value?.signal.aborted) {
-      throw new Error('请求被取消')
-    }
-    
-    const [faction1Chains, faction2Chains] = await Promise.all([
-      getFactionChains(form.faction1Id, requestQueue, faction1RankedWars),
-      getFactionChains(form.faction2Id, requestQueue, faction2RankedWars)
-    ])
-    console.log('Chain数据获取完成:', {
-      faction1ChainCount: faction1Chains.length,
-      faction2ChainCount: faction2Chains.length
-    })
-    
-    // 重新计算总步骤数（包括所有成员的个人数据）
-    const totalMembers = getMemberCount(faction1Members) + getMemberCount(faction2Members)
-    totalSteps = 6 + totalMembers
-    
-    // 获取成员个人数据
-    updateProgress(++currentStep, totalSteps, '获取成员个人数据...')
-    statusMessage.value = '正在获取成员个人数据...'
-    console.log('开始获取成员个人数据...')
-    
-    const faction1PersonalStats = {}
-    const faction2PersonalStats = {}
-    
-    // 准备所有需要获取的成员
-    const allMembers = [
-      ...Object.keys(faction1Members).map(id => ({ id, factionId: form.faction1Id, faction: 'faction1' })),
-      ...Object.keys(faction2Members).map(id => ({ id, factionId: form.faction2Id, faction: 'faction2' }))
-    ]
-    
-    console.log(`总共需要获取 ${allMembers.length} 个成员的数据，使用 ${apiKeys.length} 个API密钥`)
-    
-    // 实现真正的并发：每个API密钥同时处理一个成员
-    let processedCount = 0
-    let successCount = 0
-    let cacheHitCount = 0 // 缓存命中计数
-    let retryCount = 0 // 重试计数
-    const memberQueue = [...allMembers] // 复制队列
-    
-    // 创建并发工作器，每个API密钥一个
-    const workers = apiKeys.map(async (apiKey, workerIndex) => {
-      console.log(`工作器 ${workerIndex + 1} 开始工作，使用API密钥: ${apiKey.substring(0, 8)}...`)
-      
-      while (memberQueue.length > 0) {
-        // 检查是否被取消
-        if (abortController.value?.signal.aborted) {
-          throw new Error('请求被取消')
-        }
-        
-        // 从队列中取出一个成员
-        const member = memberQueue.shift()
-        if (!member) break
-        
-        // 声明cached变量，确保在整个循环中都可以访问
-        let cached = false
-        
-        try {
-          console.log(`工作器 ${workerIndex + 1} 开始获取成员 ${member.id} 的数据`)
-          
-          // 首先检查缓存
-          const cacheKey = getCacheKey('personalstats', member.id)
-          const cachedData = getCachedData(cacheKey)
-          
-          let combinedData
-          if (cachedData) {
-            console.log(`工作器 ${workerIndex + 1} 从缓存获取成员 ${member.id} 的数据`)
-            combinedData = cachedData
-            cached = true
-            cacheHitCount++
-          } else {
-            // 缓存中没有，发起API请求（使用重试机制）
-            const [profileData, personalStatsData] = await Promise.all([
-              fetchApiWithRetry(`/user/${member.id}`, apiKey, {
-                context: `成员 ${member.id} 基本信息`
-              }),
-              fetchApiWithRetry(`/user/${member.id}/personalstats?cat=all`, apiKey, {
-                context: `成员 ${member.id} 个人统计`
-              })
-            ])
-            
-            // 检查是否被取消
-            if (abortController.value?.signal.aborted) {
-              throw new Error('请求被取消')
-            }
-            
-            // 合并数据
-            combinedData = {
-              profile: profileData.profile || profileData,
-              personalstats: personalStatsData.personalstats || personalStatsData,
-              criminalrecord: personalStatsData.criminalrecord || (profileData.criminalrecord || {})
-            }
-            
-            // 设置缓存
-            setCachedData(cacheKey, combinedData)
-            console.log(`工作器 ${workerIndex + 1} 获取并缓存成员 ${member.id} 的数据`)
-            cached = false
-          }
-          
-          if (combinedData.personalstats) {
-            // 存储到对应的帮派数据中
-            if (member.faction === 'faction1') {
-              faction1PersonalStats[member.id] = combinedData
-            } else {
-              faction2PersonalStats[member.id] = combinedData
-            }
-            
-            successCount++
-            console.log(`工作器 ${workerIndex + 1} 成功处理成员 ${member.id} 的数据`)
-          } else {
-            console.warn(`工作器 ${workerIndex + 1} 获取成员 ${member.id} 数据为空`)
-          }
-          
-        } catch (error) {
-          if (error.message === '请求被取消') {
-            throw error
-          }
-          console.error(`工作器 ${workerIndex + 1} 获取成员 ${member.id} 数据失败:`, error)
-          
-          // 如果错误包含重试信息，增加重试计数
-          if (error.message.includes('重试')) {
-            retryCount++
-          }
-        }
-        
-        // 更新进度
-        processedCount++
-        currentStep++
-        const cacheHitRate = processedCount > 0 ? Math.round((cacheHitCount / processedCount) * 100) : 0
-        const retryInfo = retryCount > 0 ? `, 重试次数: ${retryCount}` : ''
-        statusMessage.value = `正在获取成员个人数据... (${processedCount}/${allMembers.length}, 缓存命中率: ${cacheHitRate}%${retryInfo})`
-        updateProgress(currentStep, totalSteps, `已处理 ${processedCount}/${allMembers.length} 个成员，成功获取 ${successCount} 个，缓存命中 ${cacheHitCount} 个${retryInfo}`)
-        updateDetailedProgress(`members_all`, `所有成员数据`, processedCount, allMembers.length)
-        
-        // 如果是从缓存获取的数据，不需要等待
-        if (!cached) {
-          // 每个请求后等待一小段时间，避免触发API限制
-          await new Promise(resolve => setTimeout(resolve, 1200)) // 50次/分钟 = 1.2秒间隔
-        }
-      }
-      
-      console.log(`工作器 ${workerIndex + 1} 完成工作`)
-    })
-    
-    // 等待所有工作器完成
-    await Promise.all(workers)
-    
-    console.log(`个人数据获取完成，成功获取 ${successCount} 个成员的数据，共处理 ${processedCount} 个成员`)
-    
-    // 完成数据收集
-    const finalCacheHitRate = processedCount > 0 ? Math.round((cacheHitCount / processedCount) * 100) : 0
-    updateProgress(totalSteps, totalSteps, `数据获取完成！处理了 ${processedCount} 个成员，成功 ${successCount} 个，缓存命中率 ${finalCacheHitRate}%`)
-    statusMessage.value = '数据获取完成，正在分析帮派实力...'
-    
-    // 进行帮派实力分析
-    statusMessage.value = '正在分析帮派实力...'
-    console.log('开始进行帮派实力分析...')
-    
-    const faction1Analysis = analyzeFactionStrength({
-      name: faction1Info.name,
-      members: faction1Members,
-      personalStats: faction1PersonalStats,
-      chains: faction1Chains
-    })
-    
-    const faction2Analysis = analyzeFactionStrength({
-      name: faction2Info.name,
-      members: faction2Members,
-      personalStats: faction2PersonalStats,
-      chains: faction2Chains
-    })
-    
-    // 预测PVP胜率
-    const winRatePrediction = predictPVPWinRate(faction1Analysis, faction2Analysis)
-    
-    console.log('帮派实力分析完成:', { faction1Analysis, faction2Analysis, winRatePrediction })
-    
-    // 构建结果对象
-    comparisonResult.value = {
-      faction1: {
-        info: faction1Info,
-        name: faction1Info.name,
-        members: faction1Members,
-        personalStats: faction1PersonalStats,
-        rankedWars: faction1RankedWars,
-        chains: faction1Chains
-      },
-      faction2: {
-        info: faction2Info,
-        name: faction2Info.name,
-        members: faction2Members,
-        personalStats: faction2PersonalStats,
-        rankedWars: faction2RankedWars,
-        chains: faction2Chains
-      },
-      rwDataCount: faction1RankedWars.length + faction2RankedWars.length,
-      chainDataCount: faction1Chains.length + faction2Chains.length,
-      detailedRwCount: faction1RankedWars.filter(rw => rw.report).length + faction2RankedWars.filter(rw => rw.report).length,
-      detailedChainCount: faction1Chains.filter(chain => chain.report).length + faction2Chains.filter(chain => chain.report).length,
-      personalStatsCount: Object.values(faction1PersonalStats).filter(stats => stats).length + Object.values(faction2PersonalStats).filter(stats => stats).length,
-      // 添加实力分析结果
-      faction1Analysis,
-      faction2Analysis,
-      winRatePrediction
-    }
-    
-    statusMessage.value = '所有数据获取完成！'
-    statusType.value = 'success'
-    
-  } catch (error) {
-    if (error.message === '请求被取消') {
-      statusMessage.value = '数据获取已取消'
-      statusType.value = 'warning'
-    } else {
-      console.error('数据获取失败:', error)
-      statusMessage.value = `数据获取失败: ${error.message}`
-      statusType.value = 'error'
-    }
-  }
+  const apiKeys = getValidApiKeys()
+  const requestQueue = new ApiRequestQueue(apiKeys)
+  
+  abortController.value = new AbortController()
+  
+  try {
+    // First, count the available cached data
+    console.log('Checking for available cached data...')
+    const faction1Id = form.faction1Id
+    const faction2Id = form.faction2Id
+    const dateString = getFourMonthsAgoDateString()
+    
+    const cacheStats = {
+      faction1: {
+        info: !!getCachedData(getCacheKey('faction', faction1Id)),
+        members: !!getCachedData(getCacheKey('members', faction1Id)),
+        rankedwars: !!getCachedData(getCacheKey('rankedwars', faction1Id, dateString)),
+        chains: !!getCachedData(getCacheKey('chains', faction1Id, dateString))
+      },
+      faction2: {
+        info: !!getCachedData(getCacheKey('faction', faction2Id)),
+        members: !!getCachedData(getCacheKey('members', faction2Id)),
+        rankedwars: !!getCachedData(getCacheKey('rankedwars', faction2Id, dateString)),
+        chains: !!getCachedData(getCacheKey('chains', faction2Id, dateString))
+      }
+    }
+    
+    const totalCacheableItems = 8 // 4 data items for each of the two factions
+    const cachedItems = Object.values(cacheStats.faction1).filter(Boolean).length + 
+                       Object.values(cacheStats.faction2).filter(Boolean).length
+    const cacheHitRateBasic = Math.round((cachedItems / totalCacheableItems) * 100)
+    
+    console.log(`Cache status: ${cachedItems}/${totalCacheableItems} basic data items cached (${cacheHitRateBasic}%)`)
+    statusMessage.value = `Starting data retrieval... (${cachedItems}/${totalCacheableItems} basic data items cached)`
+    
+    // Total steps calculation (this is dynamic because the number of RW and Chains is unknown)
+    let totalSteps = 6 // Get basic information
+    let currentStep = 0
+    
+    // Fetching faction basic info...
+    updateProgress(++currentStep, totalSteps, 'Fetching faction basic info...')
+    console.log('Starting to fetch faction basic info...')
+    
+    // Check if cancelled
+    if (abortController.value?.signal.aborted) {
+      throw new Error('Request cancelled')
+    }
+    
+    const [faction1Info, faction2Info] = await Promise.all([
+      getFactionInfo(form.faction1Id, requestQueue),
+      getFactionInfo(form.faction2Id, requestQueue)
+    ])
+    console.log('Faction basic info fetch complete:', { faction1Info, faction2Info })
+    
+    // Fetching member list...
+    updateProgress(++currentStep, totalSteps, 'Fetching member list...')
+    console.log('Starting to fetch member list...')
+    
+    // Check if cancelled
+    if (abortController.value?.signal.aborted) {
+      throw new Error('Request cancelled')
+    }
+    
+    const [faction1Members, faction2Members] = await Promise.all([
+      getFactionMembers(form.faction1Id, requestQueue),
+      getFactionMembers(form.faction2Id, requestQueue)
+    ])
+    console.log('Member list fetch complete:', {
+      faction1MemberCount: getMemberCount(faction1Members),
+      faction2MemberCount: getMemberCount(faction2Members)
+    })
+    
+    // Fetching RW data...
+    updateProgress(++currentStep, totalSteps, 'Fetching RW data...')
+    console.log('Starting to fetch RW data...')
+    
+    // Check if cancelled
+    if (abortController.value?.signal.aborted) {
+      throw new Error('Request cancelled')
+    }
+    
+    const [faction1RankedWars, faction2RankedWars] = await Promise.all([
+      getFactionRankedWars(form.faction1Id, requestQueue),
+      getFactionRankedWars(form.faction2Id, requestQueue)
+    ])
+    console.log('RW data fetch complete:', {
+      faction1RwCount: faction1RankedWars.length,
+      faction2RwCount: faction2RankedWars.length
+    })
+    
+    // Fetching Chain data...
+    updateProgress(++currentStep, totalSteps, 'Fetching Chain data...')
+    console.log('Starting to fetch Chain data...')
+    
+    // Check if cancelled
+    if (abortController.value?.signal.aborted) {
+      throw new Error('Request cancelled')
+    }
+    
+    const [faction1Chains, faction2Chains] = await Promise.all([
+      getFactionChains(form.faction1Id, requestQueue, faction1RankedWars),
+      getFactionChains(form.faction2Id, requestQueue, faction2RankedWars)
+    ])
+    console.log('Chain data fetch complete:', {
+      faction1ChainCount: faction1Chains.length,
+      faction2ChainCount: faction2Chains.length
+    })
+    
+    // Recalculate total steps (including personal data for all members)
+    const totalMembers = getMemberCount(faction1Members) + getMemberCount(faction2Members)
+    totalSteps = 6 + totalMembers
+    
+    // Fetching member personal data...
+    updateProgress(++currentStep, totalSteps, 'Fetching member personal data...')
+    statusMessage.value = 'Fetching member personal data...'
+    console.log('Starting to fetch member personal data...')
+    
+    const faction1PersonalStats = {}
+    const faction2PersonalStats = {}
+    
+    // Prepare all members to be fetched
+    const allMembers = [
+      ...Object.keys(faction1Members).map(id => ({ id, factionId: form.faction1Id, faction: 'faction1' })),
+      ...Object.keys(faction2Members).map(id => ({ id, factionId: form.faction2Id, faction: 'faction2' }))
+    ]
+    
+    console.log(`A total of ${allMembers.length} members' data needs to be fetched, using ${apiKeys.length} API keys`)
+    
+    // Implement true concurrency: each API key processes one member at the same time
+    let processedCount = 0
+    let successCount = 0
+    let cacheHitCount = 0 // Cache hit count
+    let retryCount = 0 // Retry count
+    const memberQueue = [...allMembers] // Copy the queue
+    
+    // Create concurrent workers, one for each API key
+    const workers = apiKeys.map(async (apiKey, workerIndex) => {
+      console.log(`Worker ${workerIndex + 1} starts working, using API key: ${apiKey.substring(0, 8)}...`)
+      
+      while (memberQueue.length > 0) {
+        // Check if cancelled
+        if (abortController.value?.signal.aborted) {
+          throw new Error('Request cancelled')
+        }
+        
+        // Dequeue a member
+        const member = memberQueue.shift()
+        if (!member) break
+        
+        // Declare the cached variable to ensure it can be accessed throughout the loop
+        let cached = false
+        
+        try {
+          console.log(`Worker ${workerIndex + 1} starts fetching data for member ${member.id}`)
+          
+          // First, check the cache
+          const cacheKey = getCacheKey('personalstats', member.id)
+          const cachedData = getCachedData(cacheKey)
+          
+          let combinedData
+          if (cachedData) {
+            console.log(`Worker ${workerIndex + 1} fetched data for member ${member.id} from cache`)
+            combinedData = cachedData
+            cached = true
+            cacheHitCount++
+          } else {
+            // Not in cache, initiate API request (with retry mechanism)
+            const [profileData, personalStatsData] = await Promise.all([
+              fetchApiWithRetry(`/user/${member.id}`, apiKey, {
+                context: `Member ${member.id} basic info`
+              }),
+              fetchApiWithRetry(`/user/${member.id}/personalstats?cat=all`, apiKey, {
+                context: `Member ${member.id} personal stats`
+              })
+            ])
+            
+            // Check if cancelled
+            if (abortController.value?.signal.aborted) {
+              throw new Error('Request cancelled')
+            }
+            
+            // Merge data
+            combinedData = {
+              profile: profileData.profile || profileData,
+              personalstats: personalStatsData.personalstats || personalStatsData,
+              criminalrecord: personalStatsData.criminalrecord || (profileData.criminalrecord || {})
+            }
+            
+            // Set cache
+            setCachedData(cacheKey, combinedData)
+            console.log(`Worker ${workerIndex + 1} fetched and cached data for member ${member.id}`)
+            cached = false
+          }
+          
+          if (combinedData.personalstats) {
+            // Store in the corresponding faction data
+            if (member.faction === 'faction1') {
+              faction1PersonalStats[member.id] = combinedData
+            } else {
+              faction2PersonalStats[member.id] = combinedData
+            }
+            
+            successCount++
+            console.log(`Worker ${workerIndex + 1} successfully processed data for member ${member.id}`)
+          } else {
+            console.warn(`Worker ${workerIndex + 1} fetched empty data for member ${member.id}`)
+          }
+          
+        } catch (error) {
+          if (error.message === 'Request cancelled') {
+            throw error
+          }
+          console.error(`Worker ${workerIndex + 1} failed to fetch data for member ${member.id}:`, error)
+          
+          // If the error includes retry information, increment the retry count
+          if (error.message.includes('retrying')) {
+            retryCount++
+          }
+        }
+        
+        // Update progress
+        processedCount++
+        currentStep++
+        const cacheHitRate = processedCount > 0 ? Math.round((cacheHitCount / processedCount) * 100) : 0
+        const retryInfo = retryCount > 0 ? `, retries: ${retryCount}` : ''
+        statusMessage.value = `Fetching member personal data... (${processedCount}/${allMembers.length}, cache hit rate: ${cacheHitRate}%${retryInfo})`
+        updateProgress(currentStep, totalSteps, `Processed ${processedCount}/${allMembers.length} members, successfully fetched ${successCount}, cache hits ${cacheHitCount}${retryInfo}`)
+        updateDetailedProgress(`members_all`, `All Members Data`, processedCount, allMembers.length)
+        
+        // If the data is fetched from the cache, no need to wait
+        if (!cached) {
+          // Wait a short time after each request to avoid hitting API limits
+          await new Promise(resolve => setTimeout(resolve, 1200)) // 50 times/minute = 1.2 second interval
+        }
+      }
+      
+      console.log(`Worker ${workerIndex + 1} finished its job`)
+    })
+    
+    // Wait for all workers to complete
+    await Promise.all(workers)
+    
+    console.log(`Personal data fetching complete, successfully fetched data for ${successCount} members, processed ${processedCount} members in total`)
+    
+    // Data collection complete
+    const finalCacheHitRate = processedCount > 0 ? Math.round((cacheHitCount / processedCount) * 100) : 0
+    updateProgress(totalSteps, totalSteps, `Data fetch complete! Processed ${processedCount} members, success ${successCount}, cache hit rate ${finalCacheHitRate}%`)
+    statusMessage.value = 'Data retrieval completed, analyzing faction strength...'
+    
+    // Performing faction strength analysis
+    statusMessage.value = 'Analyzing faction strength...'
+    console.log('Starting faction strength analysis...')
+    
+    const faction1Analysis = analyzeFactionStrength({
+      name: faction1Info.name,
+      members: faction1Members,
+      personalStats: faction1PersonalStats,
+      chains: faction1Chains
+    })
+    
+    const faction2Analysis = analyzeFactionStrength({
+      name: faction2Info.name,
+      members: faction2Members,
+      personalStats: faction2PersonalStats,
+      chains: faction2Chains
+    })
+    
+    // Predict PVP win rate
+    const winRatePrediction = predictPVPWinRate(faction1Analysis, faction2Analysis)
+    
+    console.log('Faction strength analysis complete:', { faction1Analysis, faction2Analysis, winRatePrediction })
+    
+    // Build the result object
+    comparisonResult.value = {
+      faction1: {
+        info: faction1Info,
+        name: faction1Info.name,
+        members: faction1Members,
+        personalStats: faction1PersonalStats,
+        rankedWars: faction1RankedWars,
+        chains: faction1Chains
+      },
+      faction2: {
+        info: faction2Info,
+        name: faction2Info.name,
+        members: faction2Members,
+        personalStats: faction2PersonalStats,
+        rankedWars: faction2RankedWars,
+        chains: faction2Chains
+      },
+      rwDataCount: faction1RankedWars.length + faction2RankedWars.length,
+      chainDataCount: faction1Chains.length + faction2Chains.length,
+      detailedRwCount: faction1RankedWars.filter(rw => rw.report).length + faction2RankedWars.filter(rw => rw.report).length,
+      detailedChainCount: faction1Chains.filter(chain => chain.report).length + faction2Chains.filter(chain => chain.report).length,
+      personalStatsCount: Object.values(faction1PersonalStats).filter(stats => stats).length + Object.values(faction2PersonalStats).filter(stats => stats).length,
+      // Add strength analysis results
+      faction1Analysis,
+      faction2Analysis,
+      winRatePrediction
+    }
+    
+    statusMessage.value = 'All data fetching complete!'
+    statusType.value = 'success'
+    
+  } catch (error) {
+    if (error.message === 'Request cancelled') {
+      statusMessage.value = 'Data fetching cancelled'
+      statusType.value = 'warning'
+    } else {
+      console.error('Data fetching failed:', error)
+      statusMessage.value = `Data fetching failed: ${error.message}`
+      statusType.value = 'error'
+    }
+  }
 }
 
-// 开始对比分析
+// Start comparison analysis
 const startComparison = async () => {
-  if (!canStartComparison.value) {
-    ElMessage.error('请填入帮派ID和API密钥')
-    return
-  }
-  
-  // 验证帮派ID格式
-  const faction1Id = form.faction1Id.trim()
-  const faction2Id = form.faction2Id.trim()
-  
-  if (!/^\d+$/.test(faction1Id) || !/^\d+$/.test(faction2Id)) {
-    ElMessage.error('帮派ID必须是数字')
-    return
-  }
-  
-  if (faction1Id === faction2Id) {
-    ElMessage.error('两个帮派ID不能相同')
-    return
-  }
-  
-  loading.value = true
-  statusMessage.value = '开始获取数据...'
-  statusType.value = 'info'
-  overallProgress.value = 0
-  progressText.value = ''
-  detailedProgress.value = []
-  comparisonResult.value = null
-  
-  // 更新API密钥池
-  apiKeyPool.value = getValidApiKeys()
-  
-  console.log(`开始帮派对比分析: ${faction1Id} vs ${faction2Id}`)
-  console.log(`使用 ${apiKeyPool.value.length} 个API密钥`)
-  
-  await fetchAllData()
-  
-  loading.value = false
+  if (!canStartComparison.value) {
+    ElMessage.error('Please fill in the faction IDs and API keys')
+    return
+  }
+  
+  // Validate faction ID format
+  const faction1Id = form.faction1Id.trim()
+  const faction2Id = form.faction2Id.trim()
+  
+  if (!/^\d+$/.test(faction1Id) || !/^\d+$/.test(faction2Id)) {
+    ElMessage.error('Faction ID must be a number')
+    return
+  }
+  
+  if (faction1Id === faction2Id) {
+    ElMessage.error('The two faction IDs cannot be the same')
+    return
+  }
+  
+  loading.value = true
+  statusMessage.value = 'Starting to fetch data...'
+  statusType.value = 'info'
+  overallProgress.value = 0
+  progressText.value = ''
+  detailedProgress.value = []
+  comparisonResult.value = null
+  
+  // Update API key pool
+  apiKeyPool.value = getValidApiKeys()
+  
+  console.log(`Starting faction comparison analysis: ${faction1Id} vs ${faction2Id}`)
+  console.log(`Using ${apiKeyPool.value.length} API keys`)
+  
+  await fetchAllData()
+  
+  loading.value = false
 }
 
-// 停止分析
+// Stop analysis
 const stopComparison = () => {
-  console.log('用户请求停止分析')
-  
-  if (abortController.value) {
-    abortController.value.abort()
-  }
-  
-  // 立即停止loading状态
-  loading.value = false
-  
-  // 重置进度相关状态
-  overallProgress.value = 0
-  progressText.value = ''
-  detailedProgress.value = []
-  
-  // 设置取消状态消息
-  statusMessage.value = '分析已取消'
-  statusType.value = 'warning'
-  
-  console.log('分析已停止')
+  console.log('User requested to stop analysis')
+  
+  if (abortController.value) {
+    abortController.value.abort()
+  }
+  
+  // Immediately stop the loading state
+  loading.value = false
+  
+  // Reset progress-related states
+  overallProgress.value = 0
+  progressText.value = ''
+  detailedProgress.value = []
+  
+  // Set cancellation status message
+  statusMessage.value = 'Analysis cancelled'
+  statusType.value = 'warning'
+  
+  console.log('Analysis stopped')
 }
 
-// 组件挂载时初始化
+// Initialize on component mount
 onMounted(() => {
-  updateCacheInfo()
+  updateCacheInfo()
 })
 
-// 分析个人成员数据
+// Analyze individual member data
 const analyzeMemberData = (members, personalStats, chains) => {
-  const memberAnalysis = []
-  
-  console.log(`开始成员数据分析 - 成员数: ${Object.keys(members).length}, 个人数据: ${Object.keys(personalStats).length}`)
-  
-  // 第一遍：收集所有有数据成员的睡觉时间
-  const validSleepPeriods = []
-  
-  Object.entries(members).forEach(([memberId, member]) => {
-    const memberData = personalStats[memberId]
-    if (!memberData || !memberData.personalstats) {
-      return
-    }
-    
-    // 分析该成员在Chain中的活跃度
-    const memberChainActivity = analyzeMemberChainActivity(memberId, chains, member.name)
-    
-    // 如果该成员有攻击数据，收集其睡觉时间
-    if (memberChainActivity.fourMonthAttacks > 0 && memberChainActivity.sleepPeriod) {
-      validSleepPeriods.push(memberChainActivity.sleepPeriod)
-    }
-  })
-  
-  // 计算帮派平均睡觉时间
-  const factionSleepPeriod = calculateFactionAverageSleepPeriod(validSleepPeriods)
-  
-  // 第二遍：为所有成员分配睡觉时间和计算实力
-  Object.entries(members).forEach(([memberId, member]) => {
-    const memberData = personalStats[memberId]
-    if (!memberData || !memberData.personalstats) {
-      console.warn(`成员 ${member.name} 缺少个人数据`)
-      return
-    }
-    
-    // 计算BS预测
-    const bsPrediction = calculateBSPrediction(
-      memberData.profile || {
-        name: member.name,
-        age: member.days_in_faction || 100,
-        level: member.level,
-        rank: member.rank || 'Average',
-        last_action: { timestamp: Math.floor(Date.now() / 1000) - 3600 },
-        networth: memberData.personalstats?.networth || 0
-      },
-      memberData.personalstats,
-      memberData.personalstats?.crimes || {}
-    )
-    
-    // 分析该成员在Chain中的活跃度
-    const memberChainActivity = analyzeMemberChainActivity(memberId, chains, member.name)
-    
-    // 如果成员无数据，使用帮派平均睡觉时间
-    if (memberChainActivity.fourMonthAttacks === 0) {
-      console.log(`成员 ${member.name} 无攻击数据，使用帮派平均睡觉时间`)
-      // 重新计算活跃时间段，使用帮派平均睡觉时间，但设为10小时
-      const estimatedSleepPeriod = {
-        start: factionSleepPeriod.start,
-        duration: 10 // 无数据成员固定10小时睡觉时间
-      }
-      const activeRanges = calculateActiveRanges(estimatedSleepPeriod)
-      
-      memberChainActivity.sleepPeriod = estimatedSleepPeriod
-      memberChainActivity.activeRanges = activeRanges.ranges
-      memberChainActivity.peakHours = activeRanges.activeHours
-    }
-    
-    // 计算活跃度分数（新算法）
-    const activityScore = calculateActivityScore(memberChainActivity, bsPrediction.bsScore)
-    
-    // 准备成员基础信息
-    const memberInfo = {
-      id: memberId,
-      name: member.name,
-      level: member.level,
-      rank: member.rank || 'Unknown',
-      estimatedBS: bsPrediction.bs,
-      bsScore: bsPrediction.bsScore,
-      confidence: bsPrediction.confidence,
-      fourMonthAttacks: memberChainActivity.fourMonthAttacks,
-      oneMonthAttacks: memberChainActivity.oneMonthAttacks,
-      hosPercentage: memberChainActivity.hosPercentage,
-      revengePercentage: memberChainActivity.revengePercentage,
-      peakHours: memberChainActivity.peakHours,
-      sleepPeriod: memberChainActivity.sleepPeriod, // 睡觉时间段
-      activeRanges: memberChainActivity.activeRanges, // 活跃时间段范围
-      activityScore: activityScore
-    }
-    
-    // 计算综合实力分
-    const combatPower = calculateCombatPowerScore(memberInfo)
-    memberInfo.combatPowerScore = combatPower.totalScore
-    memberInfo.combatPowerComponents = combatPower.components
-    
-    memberAnalysis.push(memberInfo)
-  })
-  
-  console.log(`成员分析完成 - 处理了 ${memberAnalysis.length} 个成员`)
-  return memberAnalysis.sort((a, b) => b.combatPowerScore - a.combatPowerScore) // 按综合实力分排序
+  const memberAnalysis = []
+  
+  console.log(`Starting member data analysis - Members: ${Object.keys(members).length}, Personal Stats: ${Object.keys(personalStats).length}`)
+  
+  // First pass: collect sleep times for all members with data
+  const validSleepPeriods = []
+  
+  Object.entries(members).forEach(([memberId, member]) => {
+    const memberData = personalStats[memberId]
+    if (!memberData || !memberData.personalstats) {
+      return
+    }
+    
+    // Analyze the member's activity in Chains
+    const memberChainActivity = analyzeMemberChainActivity(memberId, chains, member.name)
+    
+    // If the member has attack data, collect their sleep period
+    if (memberChainActivity.fourMonthAttacks > 0 && memberChainActivity.sleepPeriod) {
+      validSleepPeriods.push(memberChainActivity.sleepPeriod)
+    }
+  })
+  
+  // Calculate the faction's average sleep period
+  const factionSleepPeriod = calculateFactionAverageSleepPeriod(validSleepPeriods)
+  
+  // Second pass: assign sleep times and calculate strength for all members
+  Object.entries(members).forEach(([memberId, member]) => {
+    const memberData = personalStats[memberId]
+    if (!memberData || !memberData.personalstats) {
+      console.warn(`Member ${member.name} is missing personal data`)
+      return
+    }
+    
+    // Calculate BS prediction
+    const bsPrediction = calculateBSPrediction(
+      memberData.profile || {
+        name: member.name,
+        age: member.days_in_faction || 100,
+        level: member.level,
+        rank: member.rank || 'Average',
+        last_action: { timestamp: Math.floor(Date.now() / 1000) - 3600 },
+        networth: memberData.personalstats?.networth || 0
+      },
+      memberData.personalstats,
+      memberData.personalstats?.crimes || {}
+    )
+    
+    // Analyze the member's activity in Chains
+    const memberChainActivity = analyzeMemberChainActivity(memberId, chains, member.name)
+    
+    // If member has no data, use the faction's average sleep period
+    if (memberChainActivity.fourMonthAttacks === 0) {
+      console.log(`Member ${member.name} has no attack data, using faction average sleep period`)
+      // Recalculate active ranges using faction average sleep period, but set to 10 hours
+      const estimatedSleepPeriod = {
+        start: factionSleepPeriod.start,
+        duration: 10 // Fixed 10-hour sleep time for members with no data
+      }
+      const activeRanges = calculateActiveRanges(estimatedSleepPeriod)
+      
+      memberChainActivity.sleepPeriod = estimatedSleepPeriod
+      memberChainActivity.activeRanges = activeRanges.ranges
+      memberChainActivity.peakHours = activeRanges.activeHours
+    }
+    
+    // Calculate activity score (new algorithm)
+    const activityScore = calculateActivityScore(memberChainActivity, bsPrediction.bsScore)
+    
+    // Prepare member basic information
+    const memberInfo = {
+      id: memberId,
+      name: member.name,
+      level: member.level,
+      rank: member.rank || 'Unknown',
+      estimatedBS: bsPrediction.bs,
+      bsScore: bsPrediction.bsScore,
+      confidence: bsPrediction.confidence,
+      fourMonthAttacks: memberChainActivity.fourMonthAttacks,
+      oneMonthAttacks: memberChainActivity.oneMonthAttacks,
+      hosPercentage: memberChainActivity.hosPercentage,
+      revengePercentage: memberChainActivity.revengePercentage,
+      peakHours: memberChainActivity.peakHours,
+      sleepPeriod: memberChainActivity.sleepPeriod, // Sleep period
+      activeRanges: memberChainActivity.activeRanges, // Active ranges
+      activityScore: activityScore
+    }
+    
+    // Calculate overall combat power score
+    const combatPower = calculateCombatPowerScore(memberInfo)
+    memberInfo.combatPowerScore = combatPower.totalScore
+    memberInfo.combatPowerComponents = combatPower.components
+    
+    memberAnalysis.push(memberInfo)
+  })
+  
+  console.log(`Member analysis complete - processed ${memberAnalysis.length} members`)
+  return memberAnalysis.sort((a, b) => b.combatPowerScore - a.combatPowerScore) // Sort by overall combat power score
 }
 
-// 计算帮派平均睡觉时间
+// Calculate faction average sleep period
 const calculateFactionAverageSleepPeriod = (validSleepPeriods) => {
-  if (validSleepPeriods.length === 0) {
-    // 如果没有任何有效数据，返回默认睡觉时间（凌晨2-10点）
-    return { start: 2, duration: 8 }
-  }
-  
-  // 计算所有有效睡觉时间的平均开始时间
-  const avgStartHour = validSleepPeriods.reduce((sum, period) => sum + period.start, 0) / validSleepPeriods.length
-  const avgDuration = validSleepPeriods.reduce((sum, period) => sum + period.duration, 0) / validSleepPeriods.length
-  
-  console.log(`帮派平均睡觉时间计算 - 有效数据: ${validSleepPeriods.length} 个, 平均开始时间: ${avgStartHour.toFixed(1)}, 平均时长: ${avgDuration.toFixed(1)}`)
-  
-  return {
-    start: Math.round(avgStartHour) % 24,
-    duration: Math.round(avgDuration)
-  }
+  if (validSleepPeriods.length === 0) {
+    // If there is no valid data, return the default sleep time (2-10 AM)
+    return { start: 2, duration: 8 }
+  }
+  
+  // Calculate the average start time for all valid sleep periods
+  const avgStartHour = validSleepPeriods.reduce((sum, period) => sum + period.start, 0) / validSleepPeriods.length
+  const avgDuration = validSleepPeriods.reduce((sum, period) => sum + period.duration, 0) / validSleepPeriods.length
+  
+  console.log(`Faction average sleep period calculation - Valid data points: ${validSleepPeriods.length}, Avg start hour: ${avgStartHour.toFixed(1)}, Avg duration: ${avgDuration.toFixed(1)}`)
+  
+  return {
+    start: Math.round(avgStartHour) % 24,
+    duration: Math.round(avgDuration)
+  }
 }
 
-// 分析单个成员在Chain中的活跃度
+// Analyze a single member's activity in Chains
 const analyzeMemberChainActivity = (memberId, chains, memberName = 'Unknown') => {
-  let fourMonthAttacks = 0
-  let oneMonthAttacks = 0
-  let hosAttacks = 0
-  let revengeAttacks = 0
-  const timeZoneHours = new Array(24).fill(0)
-  const oneMonthAgo = Math.floor(Date.now() / 1000) - (30 * 24 * 3600)
-  
-  chains.forEach((chainData) => {
-    if (chainData.report && chainData.report.attackers) {
-      // 在attackers数组中查找该成员
-      const memberAttacker = chainData.report.attackers.find(attacker => String(attacker.id) === String(memberId))
-      if (memberAttacker && memberAttacker.attacks) {
-        const attacks = memberAttacker.attacks
-        
-        const totalAttacks = attacks.total || 0
-        fourMonthAttacks += totalAttacks
-        hosAttacks += attacks.hospitalize || 0
-        revengeAttacks += attacks.retaliations || 0
-        
-        // 检查Chain是否在最近一个月内
-        if (chainData.report.start >= oneMonthAgo) {
-          oneMonthAttacks += totalAttacks
-        }
-        
-        // 活跃时间段分析 - 改进算法
-        if (totalAttacks > 0) {
-          const chainStart = new Date(chainData.report.start * 1000)
-          const chainEnd = new Date(chainData.report.end * 1000)
-          const chainDuration = (chainData.report.end - chainData.report.start) / 3600 // 小时
-          
-          // 根据Chain持续时间和攻击数量，估算攻击分布
-          for (let i = 0; i < totalAttacks; i++) {
-            // 在Chain持续时间内均匀分布攻击时间
-            const attackOffset = (chainDuration * i / totalAttacks) // 攻击在Chain中的相对时间（小时）
-            const attackTime = new Date(chainStart.getTime() + attackOffset * 3600 * 1000)
-            const beijingHour = (attackTime.getUTCHours() + 8) % 24
-            timeZoneHours[beijingHour]++
-          }
-        }
-      }
-    }
-  })
-  
-  // 新的睡觉时间检测算法
-  const sleepPeriod = findSleepPeriod(timeZoneHours, fourMonthAttacks)
-  const activeRanges = calculateActiveRanges(sleepPeriod)
-  
-  return {
-    fourMonthAttacks,
-    oneMonthAttacks,
-    hosPercentage: fourMonthAttacks > 0 ? (hosAttacks / fourMonthAttacks * 100) : 0,
-    revengePercentage: fourMonthAttacks > 0 ? (revengeAttacks / fourMonthAttacks * 100) : 0,
-    peakHours: activeRanges.activeHours, // 现在是活跃小时数组
-    sleepPeriod: sleepPeriod, // 新增：睡觉时间段
-    activeRanges: activeRanges.ranges, // 新增：活跃时间段范围
-    timeZoneDistribution: timeZoneHours
-  }
+  let fourMonthAttacks = 0
+  let oneMonthAttacks = 0
+  let hosAttacks = 0
+  let revengeAttacks = 0
+  const timeZoneHours = new Array(24).fill(0)
+  const oneMonthAgo = Math.floor(Date.now() / 1000) - (30 * 24 * 3600)
+  
+  chains.forEach((chainData) => {
+    if (chainData.report && chainData.report.attackers) {
+      // Find the member in the attackers array
+      const memberAttacker = chainData.report.attackers.find(attacker => String(attacker.id) === String(memberId))
+      if (memberAttacker && memberAttacker.attacks) {
+        const attacks = memberAttacker.attacks
+        
+        const totalAttacks = attacks.total || 0
+        fourMonthAttacks += totalAttacks
+        hosAttacks += attacks.hospitalize || 0
+        revengeAttacks += attacks.retaliations || 0
+        
+        // Check if the Chain is within the last month
+        if (chainData.report.start >= oneMonthAgo) {
+          oneMonthAttacks += totalAttacks
+        }
+        
+        // Active period analysis - improved algorithm
+        if (totalAttacks > 0) {
+          const chainStart = new Date(chainData.report.start * 1000)
+          const chainEnd = new Date(chainData.report.end * 1000)
+          const chainDuration = (chainData.report.end - chainData.report.start) / 3600 // hours
+          
+          // Estimate attack distribution based on Chain duration and number of attacks
+          for (let i = 0; i < totalAttacks; i++) {
+            // Evenly distribute attack times within the Chain duration
+            const attackOffset = (chainDuration * i / totalAttacks) // Relative time of the attack within the Chain (hours)
+            const attackTime = new Date(chainStart.getTime() + attackOffset * 3600 * 1000)
+            const beijingHour = (attackTime.getUTCHours()) % 24  // Changed from +8 to UTC (no offset)
+            timeZoneHours[beijingHour]++
+          }
+        }
+      }
+    }
+  })
+  
+  // New sleep period detection algorithm
+  const sleepPeriod = findSleepPeriod(timeZoneHours, fourMonthAttacks)
+  const activeRanges = calculateActiveRanges(sleepPeriod)
+  
+  return {
+    fourMonthAttacks,
+    oneMonthAttacks,
+    hosPercentage: fourMonthAttacks > 0 ? (hosAttacks / fourMonthAttacks * 100) : 0,
+    revengePercentage: fourMonthAttacks > 0 ? (revengeAttacks / fourMonthAttacks * 100) : 0,
+    peakHours: activeRanges.activeHours, // Now an array of active hours
+    sleepPeriod: sleepPeriod, // New: sleep period
+    activeRanges: activeRanges.ranges, // New: active ranges
+    timeZoneDistribution: timeZoneHours
+  }
 }
 
-// 寻找睡觉时间段（7-10小时的连续低活跃时间）
+// Find sleep period (7-10 hours of continuous low activity)
 const findSleepPeriod = (timeZoneHours, totalAttacks) => {
-  if (totalAttacks === 0) {
-    // 没有数据时，假设默认睡觉时间为凌晨2-10点
-    return { start: 2, duration: 8 }
-  }
-  
-  // 计算每小时的活跃度比例
-  const maxAttacks = Math.max(...timeZoneHours)
-  const activityRatios = timeZoneHours.map(count => maxAttacks > 0 ? count / maxAttacks : 0)
-  
-  let bestSleepPeriod = null
-  let lowestAvgActivity = 1.0
-  
-  // 尝试7-10小时的睡觉时间段
-  for (let duration = 7; duration <= 10; duration++) {
-    for (let startHour = 0; startHour < 24; startHour++) {
-      let totalActivity = 0
-      
-      // 计算这个时间段的平均活跃度
-      for (let i = 0; i < duration; i++) {
-        const hour = (startHour + i) % 24
-        totalActivity += activityRatios[hour]
-      }
-      
-      const avgActivity = totalActivity / duration
-      
-      // 寻找活跃度最低的时间段
-      if (avgActivity < lowestAvgActivity) {
-        lowestAvgActivity = avgActivity
-        bestSleepPeriod = { start: startHour, duration: duration }
-      }
-    }
-  }
-  
-  // 如果没找到合适的睡觉时间，使用默认值
-  if (!bestSleepPeriod) {
-    bestSleepPeriod = { start: 2, duration: 8 }
-  }
-  
-  return bestSleepPeriod
+  if (totalAttacks === 0) {
+    // When there is no data, assume default sleep time is 2-10 AM
+    return { start: 2, duration: 8 }
+  }
+  
+  // Calculate the activity ratio for each hour
+  const maxAttacks = Math.max(...timeZoneHours)
+  const activityRatios = timeZoneHours.map(count => maxAttacks > 0 ? count / maxAttacks : 0)
+  
+  let bestSleepPeriod = null
+  let lowestAvgActivity = 1.0
+  
+  // Try sleep periods of 7-10 hours
+  for (let duration = 7; duration <= 10; duration++) {
+    for (let startHour = 0; startHour < 24; startHour++) {
+      let totalActivity = 0
+      
+      // Calculate the average activity for this period
+      for (let i = 0; i < duration; i++) {
+        const hour = (startHour + i) % 24
+        totalActivity += activityRatios[hour]
+      }
+      
+      const avgActivity = totalActivity / duration
+      
+      // Find the period with the lowest activity
+      if (avgActivity < lowestAvgActivity) {
+        lowestAvgActivity = avgActivity
+        bestSleepPeriod = { start: startHour, duration: duration }
+      }
+    }
+  }
+  
+  // If no suitable sleep period is found, use the default value
+  if (!bestSleepPeriod) {
+    bestSleepPeriod = { start: 2, duration: 8 }
+  }
+  
+  return bestSleepPeriod
 }
 
-// 根据睡觉时间计算活跃时间段
+// Calculate active periods based on sleep time
 const calculateActiveRanges = (sleepPeriod) => {
-  const activeHours = []
-  const ranges = []
-  
-  // 生成活跃小时数组（除了睡觉时间的所有小时）
-  for (let hour = 0; hour < 24; hour++) {
-    const sleepStart = sleepPeriod.start
-    const sleepEnd = (sleepPeriod.start + sleepPeriod.duration) % 24
-    
-    let isSleeping = false
-    if (sleepStart < sleepEnd) {
-      // 睡觉时间不跨夜（如 2-10）
-      isSleeping = hour >= sleepStart && hour < sleepEnd
-    } else {
-      // 睡觉时间跨夜（如 22-6）
-      isSleeping = hour >= sleepStart || hour < sleepEnd
-    }
-    
-    if (!isSleeping) {
-      activeHours.push(hour)
-    }
-  }
-  
-  // 将活跃小时合并为连续的时间段
-  if (activeHours.length > 0) {
-    let rangeStart = activeHours[0]
-    let rangeEnd = activeHours[0]
-    
-    for (let i = 1; i < activeHours.length; i++) {
-      const currentHour = activeHours[i]
-      const prevHour = activeHours[i - 1]
-      
-      if (currentHour === prevHour + 1 || (prevHour === 23 && currentHour === 0)) {
-        // 连续的小时或跨夜连续
-        rangeEnd = currentHour
-      } else {
-        // 不连续，保存当前段，开始新段
-        ranges.push({ start: rangeStart, end: rangeEnd })
-        rangeStart = currentHour
-        rangeEnd = currentHour
-      }
-    }
-    
-    // 添加最后一段
-    ranges.push({ start: rangeStart, end: rangeEnd })
-  }
-  
-  return { activeHours, ranges }
+  const activeHours = []
+  const ranges = []
+  
+  // Generate an array of active hours (all hours except sleep time)
+  for (let hour = 0; hour < 24; hour++) {
+    const sleepStart = sleepPeriod.start
+    const sleepEnd = (sleepPeriod.start + sleepPeriod.duration) % 24
+    
+    let isSleeping = false
+    if (sleepStart < sleepEnd) {
+      // Sleep time does not cross midnight (e.g., 2-10)
+      isSleeping = hour >= sleepStart && hour < sleepEnd
+    } else {
+      // Sleep time crosses midnight (e.g., 22-6)
+      isSleeping = hour >= sleepStart || hour < sleepEnd
+    }
+    
+    if (!isSleeping) {
+      activeHours.push(hour)
+    }
+  }
+  
+  // Merge active hours into continuous ranges
+  if (activeHours.length > 0) {
+    let rangeStart = activeHours[0]
+    let rangeEnd = activeHours[0]
+    
+    for (let i = 1; i < activeHours.length; i++) {
+      const currentHour = activeHours[i]
+      const prevHour = activeHours[i - 1]
+      
+      if (currentHour === prevHour + 1 || (prevHour === 23 && currentHour === 0)) {
+        // Consecutive hours or continuous across midnight
+        rangeEnd = currentHour
+      } else {
+        // Not continuous, save the current range and start a new one
+        ranges.push({ start: rangeStart, end: rangeEnd })
+        rangeStart = currentHour
+        rangeEnd = currentHour
+      }
+    }
+    
+    // Add the last range
+    ranges.push({ start: rangeStart, end: rangeEnd })
+  }
+  
+  return { activeHours, ranges }
 }
 
-// 获取帮派最优开战时间
+// Get the best time for the faction to start a war
 const getBestTimesForFaction = (hourlyWinRates, factionNumber) => {
-  if (!hourlyWinRates || hourlyWinRates.length === 0) return []
-  
-  // 根据帮派编号选择胜率字段
-  const winRateField = factionNumber === 1 ? 'faction1WinRate' : 'faction2WinRate'
-  
-  // 按胜率排序，取前5个最优时间
-  const sortedHours = [...hourlyWinRates]
-    .sort((a, b) => b[winRateField] - a[winRateField])
-    .slice(0, 5)
-    .sort((a, b) => a.hour - b.hour) // 按时间顺序重新排列
-  
-  return sortedHours
+  if (!hourlyWinRates || hourlyWinRates.length === 0) return []
+  
+  // Select the win rate field based on the faction number
+  const winRateField = factionNumber === 1 ? 'faction1WinRate' : 'faction2WinRate'
+  
+  // Sort by win rate and take the top 5 best times
+  const sortedHours = [...hourlyWinRates]
+    .sort((a, b) => b[winRateField] - a[winRateField])
+    .slice(0, 5)
+    .sort((a, b) => a.hour - b.hour) // Re-sort by hour
+  
+  return sortedHours
 }
 </script>
 

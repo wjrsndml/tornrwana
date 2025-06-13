@@ -1,13 +1,13 @@
 <template>
   <div class="app-container">
-    <!-- 顶部标题 -->
+    <!-- Header -->
     <div class="header">
-      <h1>Torn 帮派实力分析器</h1>
+      <h1>Torn Faction Strength Analyzer</h1>
     </div>
 
-    <!-- 主内容区域 -->
+    <!-- Main content area -->
     <div class="main-content">
-      <!-- 帮派实力分析 -->
+      <!-- Faction strength analysis -->
       <div class="content-section">
         <FactionComparison />
       </div>
