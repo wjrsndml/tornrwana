@@ -501,14 +501,14 @@
                 </el-table-column>
                 <el-table-column prop="fourMonthAttacks" label="4-Month Attacks" width="100" align="center" sortable />
                 <el-table-column prop="oneMonthAttacks" label="1-Month Attacks" width="100" align="center" sortable />
-                <el-table-column prop="hosPercentage" label="HOS Percentage" width="80" align="center" sortable>
+                <el-table-column prop="hosPercentage" label="HOS Percentage" width="90" align="center" sortable>
                   <template #default="{ row }">
                     <span :style="{ color: row.hosPercentage > 20 ? '#67c23a' : '#909399' }">
                       {{ row.hosPercentage.toFixed(1) }}%
                     </span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="revengePercentage" label="Revenge Percentage" width="80" align="center" sortable>
+                <el-table-column prop="revengePercentage" label="Retaliation Percentage" width="90" align="center" sortable>
                   <template #default="{ row }">
                     <span :style="{ color: row.revengePercentage > 10 ? '#f56c6c' : '#909399' }">
                       {{ row.revengePercentage.toFixed(1) }}%
